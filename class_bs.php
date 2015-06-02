@@ -551,14 +551,14 @@ class BurningSeries
 	 *
 	 * @return bool
 	 */
-	public function markAsWatched($id)
+	public function markAsWatched($id, $season = null, $episode = null)
 	{
 		if (empty($this->sessionId)) {
 			return false;
 		}
 
-		if (func_num_args() == 3) {
-			$hoster = $this->getHoster(func_get_arg(0), func_get_arg(1), func_get_arg(2));
+		if ($season !== null && $episode !== null) {
+			$hoster = $this->getHoster($id, $season, $episode);
 			$randomHoster = array_rand($hoster);
 			$id = $hoster[$randomHoster]['id'];
 		}
@@ -573,29 +573,29 @@ class BurningSeries
 	/**
 	 * Mark a specific version as watched
 	 *
-	 * @param int $episode Either the correct episode id or (if 3 parameters are set) the serie id
+	 * @param int $id      Either the correct episode id or (if 3 parameters are set) the serie id
 	 * @param int $season  If the first parameter is the series this would be the season
 	 * @param int $episode If the first parameter is the series this would be the episode
 	 *
 	 * @return bool
 	 */
-	public function markAsUnwatched($episode)
+	public function markAsUnwatched($id, $season = null, $episode = null)
 	{
 		if (empty($this->sessionId)) {
 			return false;
 		}
 
-		if (func_num_args() == 3) {
-			$episode = $this->getEpisode(func_get_arg(0), func_get_arg(1), func_get_arg(2));
+		if ($season !== null && $episode !== null) {
+			$id = $this->getEpisode($id, $season, $episode);
 		}
 
-		if (is_array($episode) && isset($episode['id'])) {
-			$episode = $episode['id'];
+		if (is_array($id) && isset($id['id'])) {
+			$id = $id['id'];
 		}
 
-		$episode = (int)$episode;
+		$id = (int)$id;
 
-		$sucess = $this->call("unwatch/{$episode}");
+		$sucess = $this->call("unwatch/{$id}");
 
 		return $sucess['success'];
 	}
@@ -615,7 +615,8 @@ class BurningSeries
 	}
 
 	/**
-	 * Set the favorite series. NOTE: This overwrites existing favorites. Use "markAsFavorite" or "unmarkAsFavorite" if you need to modify one series
+	 * Set the favorite series. NOTE: This overwrites existing favorites. Use "markAsFavorite" or "unmarkAsFavorite" if
+	 * you need to modify one series
 	 *
 	 * @param array $series
 	 *
