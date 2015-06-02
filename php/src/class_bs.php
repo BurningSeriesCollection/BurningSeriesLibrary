@@ -754,7 +754,7 @@ class BurningSeries
 	 */
 	public function setCoverUrl($coverUrl)
 	{
-		if (!empty($url) && strpos($url, '{id}') !== false) {
+		if (!empty($coverUrl) && strpos($coverUrl, '{id}') !== false) {
 			$this->coverUrl = $coverUrl;
 		}
 	}
