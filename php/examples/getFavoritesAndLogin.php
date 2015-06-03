@@ -1,8 +1,8 @@
 <?php
 
 // You need to update these to get this working
-$username = 'JonesH';
-$password = '/"I!Pb0arddH-&2^\7#ic:k+{9v3Z1';
+$username = '';
+$password = '';
 
 if(empty($username) || empty($password)) {
 	echo 'Please update username and password in this file!';
