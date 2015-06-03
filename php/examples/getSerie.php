@@ -18,7 +18,7 @@ if(empty($serie)) {
 echo "<h1>{$serie['series']}</h1>";
 
 echo "Start: "; echo $serie['start'] != null ? $serie['start'] : '<i>Unknown</i>';
-echo "<br /> End:"; echo $serie['end'] != null ? $serie['end'] : '<i>Unknown</i>';
+echo "<br /> End: "; echo $serie['end'] != null ? $serie['end'] : '<i>Unknown</i>';
 echo "<br /> Has Movie(s): "; echo $serie['movies'] ? 'Yes' : 'No';
 echo "<br /> Seasons: {$serie['seasons']}";
 echo "<br /> {$serie['description']}";
