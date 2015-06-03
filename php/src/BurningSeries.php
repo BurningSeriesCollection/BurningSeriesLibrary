@@ -399,7 +399,7 @@ class BurningSeries
 				return $series[$genre];
 			}
 
-			return array();
+			return array('series' => array());
 		} elseif (is_int($genre)) {
 			foreach ($series as $genreInformation) {
 				if ($genreInformation['id'] == $genre) {
@@ -407,7 +407,7 @@ class BurningSeries
 				}
 			}
 
-			return array();
+			return array('series' => array());
 
 		}
 
