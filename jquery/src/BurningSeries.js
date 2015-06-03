@@ -121,13 +121,13 @@
 
 		getGenres: function(callback)
 		{
-			this.getSeries(function(data) {
+			this.getSeries(this.SORT_GENRE, function(data) {
 				var keys = [];
 				for(var key in data) {
 					keys.push(key);
 				}
 				callback(keys);
-			}, this.SORT_GENRE);
+			});
 		},
 
 		hasWatched: function(serie, season, episode, callback)
@@ -288,8 +288,13 @@ console.log(episode.epi);
 		 ************ General API ************
 		 *************************************/
 
-		getSeries: function (callback, sort)
+		getSeries: function (sort, callback)
 		{
+			if(typeof callback == 'undefined') {
+				callback = sort;
+				sort = this.SORT_ALPHABETICAL;
+			}
+
 			var link = 'series';
 			if (sort == this.SORT_GENRE) {
 				link = 'series:genre';
@@ -309,7 +314,7 @@ console.log(episode.epi);
 
 		getByGenre: function (genre, callback)
 		{
-			var series = this.getSeries(function (series)
+			var series = this.getSeries(this.SORT_GENRE, function (series)
 			{
 				if (parseInt(genre) == genre) {
 					genre = parseInt(genre);
@@ -336,12 +341,12 @@ console.log(episode.epi);
 				}
 
 				callback([]);
-			}, this.SORT_GENRE);
+			});
 		},
 
 		getNewest: function (callback)
 		{
-			return this.getSeries(callback, this.SORT_NEWEST);
+			return this.getSeries(this.SORT_NEWEST, callback);
 		},
 
 		getSerie: function (serie, callback)
