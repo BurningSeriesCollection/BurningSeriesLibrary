@@ -1,6 +1,7 @@
 package de.jonesboard.burningseries;
 
 import java.util.Random;
+import de.jonesboard.burningseries.interfaces.*;
 
 public class BurningSeries {
 	private String baseUrl = "http://bs.to/serie/";
