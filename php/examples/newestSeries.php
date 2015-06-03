@@ -1,6 +1,6 @@
 <?php
 
-require_once '../src/class_bs.php';
+require_once '../src/BurningSeries.php';
 $bs = new BurningSeries();
 
 echo "<pre>";
