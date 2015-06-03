@@ -8,17 +8,18 @@
 </head>
 <body>
 <script>
-    BurningSeries.getNewest(function (newestSeries)
-    {
-        document.writeln('Latest Series:<br />');
+    BurningSeries.getSeries(function(series) {
+        document.writeln('We currently have ' + series.length + ' Series: <br />');
 
-        for(var i=0; i<5; i++) {
-            document.writeln(newestSeries[i].series + " (ID: " + newestSeries[i].id + ") <br />");
+        for(var key in series) {
+            var serie = series[key];
+
+            document.writeln(serie.series + ' (ID: ' + serie.id + ') <br />');
         }
     });
 </script>
 
-Loading, please wait <br />
+Loading, please wait <br/>
 
 </body>
 </html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../src/BurningSeries.js"></script>
+</head>
+<body>
+<script>
+    // Serie can be the ID, the Name or if the series is already loaded the array
+    var serie = 3; // 24
+    var season = 1;
+    var episode = 1;
+
+    BurningSeries.buildSerieUrl(serie, function (serieUrl)
+    {
+        document.writeln('<a href="' + serieUrl + '" target="_blank">Serie for ' + serie + ' (' + serieUrl + ')</a> <br />');
+    });
+
+    BurningSeries.buildSeasonUrl(serie, season, function (seasonUrl)
+    {
+        document.writeln('<a href="' + seasonUrl + '" target="_blank">Season ' + season + ' (' + seasonUrl + ')</a> <br />');
+    });
+
+    BurningSeries.buildEpisodeUrl(serie, season, episode, function (episodeUrl)
+    {
+        document.writeln('<a href="' + episodeUrl + '" target="_blank">Episode ' + episode + ' (' + episodeUrl + ')</a> <br />');
+    });
+</script>
+
+Loading, please wait <br/>
+
+</body>
+</html>

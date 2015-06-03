@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../src/BurningSeries.js"></script>
+</head>
+<body>
+<script>
+    var serie = 3; // 24
+
+    BurningSeries.getSerie(serie, function(serie) {
+        if(serie.length == 0) {
+            alert("No serie with ID "+ id);
+            throw '';
+        }
+
+        document.writeln('<h1>' + serie.series + '</h1>');
+
+        document.write('Start: '); document.writeln(serie.start != null ? serie.start : '<i>Unknown</i>');
+        document.write('<br /> End: '); document.writeln(serie.end != null ? serie.end : '<i>Unknown</i>');
+        document.write('<br /> Has Movie(s): '); document.writeln(serie.movies ? 'Yes' : 'No');
+        document.writeln('<br /> Seasons: ' + serie.seasons);
+        document.writeln('<br />' + serie.description);
+
+        //There's also the $serie['data'] array which has some usefull information like the producer or the genres
+    });
+</script>
+
+Loading, please wait <br/>
+
+</body>
+</html>

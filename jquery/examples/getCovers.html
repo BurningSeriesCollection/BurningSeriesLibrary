@@ -8,17 +8,16 @@
 </head>
 <body>
 <script>
-    BurningSeries.getNewest(function (newestSeries)
-    {
-        document.writeln('Latest Series:<br />');
+    // Serie can be the ID, the Name or if the series is already loaded the array
+    var serie = 'Dragonball';
 
-        for(var i=0; i<5; i++) {
-            document.writeln(newestSeries[i].series + " (ID: " + newestSeries[i].id + ") <br />");
-        }
+    BurningSeries.getCover(serie, function (cover)
+    {
+        document.writeln('<img src="' + cover + '" alt="Cover for ' + serie + '" />');
     });
 </script>
 
-Loading, please wait <br />
+Loading, please wait <br/>
 
 </body>
 </html>

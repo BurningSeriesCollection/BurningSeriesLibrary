@@ -8,17 +8,19 @@
 </head>
 <body>
 <script>
-    BurningSeries.getNewest(function (newestSeries)
+    BurningSeries.getGenres(function (genres)
     {
-        document.writeln('Latest Series:<br />');
+        document.writeln('The following genres exist: <br />');
 
-        for(var i=0; i<5; i++) {
-            document.writeln(newestSeries[i].series + " (ID: " + newestSeries[i].id + ") <br />");
+        for(var key in genres) {
+            var genre = genres[key];
+
+            document.writeln(genre + '<br />');
         }
     });
 </script>
 
-Loading, please wait <br />
+Loading, please wait <br/>
 
 </body>
 </html>

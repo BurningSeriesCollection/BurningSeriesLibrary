@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../src/BurningSeries.js"></script>
+</head>
+<body>
+<script>
+    // You need to update these to get this working
+    var username = '';
+    var password = '';
+
+    if (username == '' || password == '') {
+        alert('Please update username and password in this file!');
+        throw '';
+    }
+
+    BurningSeries.login(username, password, function (sessionkey)
+    {
+        // sessionkey has the same value but as this is a demo we use that function
+        document.writeln('The session key for this request is ' + BurningSeries.getSessionId() + ' <br /><br />');
+
+        BurningSeries.getFavoriteSeries(function(favorites) {
+            document.writeln('Your favorite series are: <br />');
+
+            for(var key in favorites) {
+                var favorite = favorites[key];
+
+                document.writeln(favorite.series + ' (ID: ' + favorite.id + ') <br />');
+            }
+
+            // Don't forget to logout if you're not using the sessionkey somewhere else!
+            BurningSeries.logout();
+        });
+    });
+</script>
+
+Loading, please wait <br/>
+
+</body>
+</html>

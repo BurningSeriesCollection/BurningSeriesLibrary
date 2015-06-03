@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../src/BurningSeries.js"></script>
+</head>
+<body>
+<script>
+    var search = 'Dragonball';
+
+    // If the second parameter is set to "true" only exact matches will be returned
+    BurningSeries.search(search, function(series) {
+        document.writeln('Search for ' + search + ' gave back: <br />');
+
+        for(var key in series) {
+            var serie = series[key];
+
+            document.writeln(serie.series + ' (ID: ' + serie.id + ')<br />');
+        }
+    });
+</script>
+
+Loading, please wait <br/>
+
+</body>
+</html>
