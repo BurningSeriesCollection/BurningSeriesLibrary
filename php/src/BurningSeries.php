@@ -646,11 +646,13 @@ class BurningSeries
 	 * @param string $password
 	 *
 	 * @return string
+	 *
+	 * @throws Exception
 	 */
 	public function login($name, $password)
 	{
 		if (!is_string($name) || !is_string($password)) {
-			die('Name and Password need to be strings');
+			throw new Exception('Name and Password need to be strings');
 		}
 
 		$session = $this->call('login', array(
@@ -807,6 +809,8 @@ class BurningSeries
 	 * @param array|int|string $serie Either the series array, it's id or the name of it
 	 *
 	 * @return array
+	 *
+	 * @throws Exception
 	 */
 	protected function getSerieObject($serie)
 	{
@@ -820,7 +824,7 @@ class BurningSeries
 			$serie = $this->getSerie($serie);
 
 			if (empty($serie)) {
-				die("Error getting the series: <pre>" . print_r($serie, true) . "</pre>");
+				throw new Exception("Error getting the series: <pre>" . print_r($serie, true) . "</pre>");
 			}
 
 			return $serie;
@@ -837,14 +841,14 @@ class BurningSeries
 					return $this->getSerieObject((int)$serie);
 				}
 
-				die("Couldn't find a Serie with that name");
+				throw new Exception("Couldn't find a Serie with that name");
 			}
 
 			return $this->getSerie($result['id']);
 		}
 
 		// Still here?
-		die('Serie needs to be either an integer, a string or an array');
+		throw new Exception('Serie needs to be either an integer, a string or an array');
 	}
 
 	/**
