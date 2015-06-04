@@ -22,6 +22,19 @@ class BurningSeries
 	/** @var int $postCalls */
 	private $postCalls = 0;
 
+	/** @var bool $enableCaching */
+	private $enableCaching = true;
+	/** @var array $cache */
+	private $cache = array();
+	/** @var array $dontCache */
+	protected $dontCache = array(
+		'watch',
+		'unwatch',
+		'user/series/set',
+		'login',
+		'logout',
+	);
+
 	/*****************************************
 	 ************ General Helpers ************
 	 *****************************************/
@@ -861,6 +874,13 @@ class BurningSeries
 	 */
 	protected function call($link, $post = false)
 	{
+		// Only return cache if caching is enabled, this url should be cached, has a cache and if it's not a post
+		if ($this->isCaching() && $this->shouldBeCached($link) && $this->hasCache($link) && $post === false) {
+			return $this->getCache($link);
+		}
+
+		$cacheName = $link;
+
 		$link = $this->baseApiUrl . $link;
 
 		if ($this->sessionId !== null) {
@@ -891,7 +911,14 @@ class BurningSeries
 			$request = @gzdecode($request);
 		}
 
-		return json_decode($request, true);
+		$return = json_decode($request, true);
+
+		// Only cache if caching is enabled, this url should be cached and if it's not a post request
+		if ($this->isCaching() && $this->shouldBeCached($cacheName) && $post === false) {
+			$this->putCache($cacheName, $return);
+		}
+
+		return $return;
 	}
 
 	/**
@@ -922,6 +949,110 @@ class BurningSeries
 		}
 
 		return ($a['id'] > $b['id']) ? -1 : 1;
+	}
+
+	/*****************************************
+	 ************ Caching Helpers ************
+	 *****************************************/
+
+	/**
+	 * Save a new response for a specific url in the cache
+	 *
+	 * @param string $url
+	 * @param mixed $data
+	 */
+	protected function putCache($url, $data)
+	{
+		$this->cache[$url] = $data;
+	}
+
+	/**
+	 * Check whether we have already cached the response for a given url
+	 *
+	 * @param string $url
+	 *
+	 * @return bool
+	 */
+	protected function hasCache($url)
+	{
+		return !empty($this->cache[$url]);
+	}
+
+	/**
+	 * Get the response for a given url
+	 *
+	 * @param string $url
+	 *
+	 * @return mixed
+	 */
+	protected function getCache($url)
+	{
+		return $this->cache[$url];
+	}
+
+	/**
+	 * Test whether a given url should be cached
+	 *
+	 * @param string $url
+	 *
+	 * @return bool
+	 */
+	protected function shouldBeCached($url)
+	{
+		if (in_array($url, $this->dontCache)) {
+			return false;
+		}
+
+		foreach ($this->dontCache as $notCache) {
+			// Starts with a non caching url? Something with a parameter likely
+			if (strpos($url, $notCache) === 0) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Either reset the whole cache or forget the response for a given url
+	 *
+	 * @param string $url
+	 */
+	public function invalidateCache($url = '')
+	{
+		if(empty($url)) {
+			$this->cache = array();
+		} else {
+			unset($this->cache[$url]);
+		}
+	}
+
+	/**
+	 * Changes the status of caching
+	 *
+	 * @param bool $disable If true, caching will be disabled otherwise enabled
+	 */
+	public function disableCache($disable = true)
+	{
+		$this->enableCaching = !$disable;
+	}
+
+	/**
+	 * Enable caching
+	 */
+	public function enableCache()
+	{
+		$this->disableCache(false);
+	}
+
+	/**
+	 * Test whether caching is enabled
+	 *
+	 * @return bool
+	 */
+	public function isCaching()
+	{
+		return $this->enableCaching;
 	}
 
 	/*****************************************
