@@ -1,7 +1,30 @@
 package de.jonesboard.burningseries;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Random;
-import de.jonesboard.burningseries.interfaces.*;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import de.jonesboard.burningseries.classes.Episode;
+import de.jonesboard.burningseries.classes.Hoster;
+import de.jonesboard.burningseries.classes.Season;
+import de.jonesboard.burningseries.classes.Serie;
+import de.jonesboard.burningseries.interfaces.EpisodeInterface;
+import de.jonesboard.burningseries.interfaces.HosterInterface;
+import de.jonesboard.burningseries.interfaces.SeasonInterface;
+import de.jonesboard.burningseries.interfaces.SerieInterface;
 
 public class BurningSeries {
 	private String baseUrl = "http://bs.to/serie/";
@@ -9,38 +32,39 @@ public class BurningSeries {
 	private String coverUrl = "//s.bs.to/img/cover/{id}.jpg";
 	private String sessionId = null;
 	
-	public final int SORT_ALPHABETICAL = 0;
-	public final int SORT_GENRE = 1;
-	public final int SORT_NEWEST = 2;
+	public static final int SORT_ALPHABETICAL = 0;
+	public static final int SORT_NEWEST = 1;
 	
-	public final String ANDROID = "android";
+	public static final String ANDROID = "android";
 	
 	private int calls = 0;
 	private int postCalls = 0;
 
+	private static ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
 
+	
 	/*****************************************
 	 ************ General Helpers ************
 	 *****************************************/
 	
-	public Serie[] search(String name, boolean exact)
+	public SerieInterface[] search(String name, boolean exact)
 	{
 		// TODO
 	}
 	
-	public Serie[] search(String name)
+	public SerieInterface[] search(String name)
 	{
 		return this.search(name, false);
 	}
 	
-	public Serie getByName(String name)
+	public SerieInterface getByName(String name)
 	{
-		Serie[] serie = this.search(name, true);
+		SerieInterface[] serie = this.search(name, true);
 		
 		return this.getSerie(serie[0].getId());
 	}
 	
-	public String buildSerieUrl(Serie serie)
+	public String buildSerieUrl(SerieInterface serie)
 	{
 		// TODO
 	}
@@ -55,7 +79,7 @@ public class BurningSeries {
 		return this.buildSerieUrl(this.getByName(serie));
 	}
 	
-	public String buildSeasonUrl(Serie serie, int season)
+	public String buildSeasonUrl(SerieInterface serie, int season)
 	{
 		// TODO
 	}
@@ -70,7 +94,7 @@ public class BurningSeries {
 		return this.buildSeasonUrl(this.getByName(serie), season);
 	}
 	
-	public String buildEpisodeUrl(Serie serie, int season, int episode)
+	public String buildEpisodeUrl(SerieInterface serie, int season, int episode)
 	{
 		// TODO
 	}
@@ -92,7 +116,7 @@ public class BurningSeries {
 		// TODO
 	}
 	
-	public String getCover(Serie serie)
+	public String getCover(SerieInterface serie)
 	{
 		return this.getCover(serie.getId());
 	}
@@ -112,7 +136,7 @@ public class BurningSeries {
 		// TODO
 	}
 	
-	public boolean hasWatched(Serie serie, int season, int episode)
+	public boolean hasWatched(SerieInterface serie, int season, int episode)
 	{
 		return this.hasWatched(serie.getId(), season, episode);
 	}
@@ -122,62 +146,62 @@ public class BurningSeries {
 		return this.hasWatched(this.getByName(serie), season, episode);
 	}
 	
-	public Episode getNextUnwatchedEpisode(int serie, int season, int offset)
+	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season, int offset)
 	{
 		// TODO
 	}
 	
-	public Episode getNextUnwatchedEpisode(Serie serie, int season, int offset)
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season, int offset)
 	{
 		return this.getNextUnwatchedEpisode(serie.getId(), season, offset);
 	}
 	
-	public Episode getNextUnwatchedEpisode(String serie, int season, int offset)
+	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season, int offset)
 	{
 		return this.getNextUnwatchedEpisode(this.getByName(serie), season, offset);
 	}
 
-	public Episode getNextUnwatchedEpisode(int serie, int season)
+	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season)
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
 	
-	public Episode getNextUnwatchedEpisode(Serie serie, int season)
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season)
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
 	
-	public Episode getNextUnwatchedEpisode(String serie, int season)
+	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season)
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
 	
-	public Episode getNextUnwatchedEpisode(int serie)
+	public EpisodeInterface getNextUnwatchedEpisode(int serie)
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
 	
-	public Episode getNextUnwatchedEpisode(Serie serie)
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie)
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
 	
-	public Episode getNextUnwatchedEpisode(String serie)
+	public EpisodeInterface getNextUnwatchedEpisode(String serie)
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
 	
-	public Episode getNextUnwatchedMovie(int serie)
+	public EpisodeInterface getNextUnwatchedMovie(int serie)
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
 	
-	public Episode getNextUnwatchedMovie(Serie serie)
+	public EpisodeInterface getNextUnwatchedMovie(SerieInterface serie)
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
 	
-	public Episode getNextUnwatchedMovie(String serie)
+	public EpisodeInterface getNextUnwatchedMovie(String serie)
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
@@ -187,7 +211,7 @@ public class BurningSeries {
 		// TODO
 	}
 	
-	public boolean markAsFavorite(Serie serie)
+	public boolean markAsFavorite(SerieInterface serie)
 	{
 		return this.markAsFavorite(serie.getId());
 	}
@@ -202,7 +226,7 @@ public class BurningSeries {
 		// TODO
 	}
 	
-	public boolean unmarkAsFavorite(Serie serie)
+	public boolean unmarkAsFavorite(SerieInterface serie)
 	{
 		return this.unmarkAsFavorite(serie.getId());
 	}
@@ -217,7 +241,7 @@ public class BurningSeries {
 		// TODO
 	}
 	
-	public boolean isFavoritedSerie(Serie serie)
+	public boolean isFavoritedSerie(SerieInterface serie)
 	{
 		return this.isFavoritedSerie(serie.getId());
 	}
@@ -232,128 +256,219 @@ public class BurningSeries {
 	 ************ General API ************
 	 *************************************/
 	
-	public Serie[] getSeries(int sort)
+	public SerieInterface[] getSeries(int sort) throws Exception
 	{
-		// TODO
+		SerieInterface[] series = BurningSeries.mapper.readValue(this.call("series"), Serie[].class);
+		
+		if(sort == BurningSeries.SORT_NEWEST) {
+			Arrays.sort(series);
+		}
+		
+		return series;
 	}
 	
-	public Serie[] getSeries()
+	public SerieInterface[] getSeries() throws Exception
 	{
-		return this.getSeries(this.SORT_ALPHABETICAL);
+		return this.getSeries(BurningSeries.SORT_ALPHABETICAL);
 	}
 
-	public Serie[] getByGenre()
+	public HashMap<String, SerieInterface[]> getByGenre() throws Exception
 	{
-		return this.getSeries(this.SORT_GENRE);
+		HashMap<String, HashMap<String, Object>> temp = BurningSeries.mapper.readValue(this.call("series:genre"), new TypeReference<HashMap<String, HashMap<String, Object>>>() {});
+		
+		HashMap<String, SerieInterface[]> returnValue = new HashMap<String, SerieInterface[]>();
+		
+		for(Entry<String, HashMap<String, Object>> entry : temp.entrySet()) {
+			HashMap<String, Object> value = (HashMap<String, Object>) entry.getValue();
+
+			Serie[] series = mapper.convertValue(value.get("series"), Serie[].class);
+			returnValue.put(entry.getKey(), series);
+		}
+		
+		return returnValue;
 	}
 	
-	public Serie[] getByGenre(int genre)
-	{
-		// TODO
-	}
-	
-	public Serie[] getByGenre(String genre)
-	{
-		// TODO
-	}
-	
-	public Serie[] getNewest()
-	{
-		return this.getSeries(this.SORT_NEWEST);
-	}
-	
-	public Serie getSerie(int serie)
+	public SerieInterface[] getByGenre(int genre)
 	{
 		// TODO
+		return new Serie[0];
 	}
 	
-	public Season getSeason(int serie, int season)
+	public SerieInterface[] getByGenre(String genre) throws Exception
 	{
-		// TODO
+		HashMap<String, SerieInterface[]> genres = this.getByGenre();
+		
+		if(genres.containsKey(genre)) {
+			return genres.get(genre);
+		}
+		
+		return new Serie[0];
 	}
 	
-	public Season getMovies(int serie)
+	public SerieInterface[] getNewest() throws Exception
+	{
+		return this.getSeries(BurningSeries.SORT_NEWEST);
+	}
+	
+	public SerieInterface getSerie(int serie) throws Exception
+	{
+		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/1"), new TypeReference<HashMap<String, Object>>() {});
+		return mapper.convertValue(temp.get("series"), Serie.class);
+	}
+	
+	public SeasonInterface getSeason(int serie, int season) throws Exception
+	{
+		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season), new TypeReference<HashMap<String, Object>>() {});
+		EpisodeInterface[] episodes = mapper.convertValue(temp.get("epi"), Episode[].class);
+		
+		SeasonInterface seasonObject = new Season();
+		seasonObject.setEpi(episodes);
+		seasonObject.setSeason(season);
+		return seasonObject;
+	}
+	
+	public SeasonInterface getMovies(int serie) throws Exception
 	{
 		return this.getSeason(serie, 0);
 	}
 	
-	public Episode getEpisode(int serie, int season, int episode)
+	public EpisodeInterface getEpisode(int serie, int season, int episode) throws Exception
 	{
-		// TODO
+		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
+		return mapper.convertValue(temp.get("epi"), Episode.class);
 	}
 	
 	// TODO: Check whether "get" function can be added
 	
-	public Hoster[] getHoster(int serie, int season, int episode)
+	public HosterInterface[] getHoster(int serie, int season, int episode) throws Exception
 	{
-		// TODO
+		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
+		return mapper.convertValue(temp.get("links"), Hoster[].class);
 	}
 	
-	public Hoster getVideo(int id)
+	public HosterInterface getVideo(int id) throws Exception
 	{
-		// TODO
+		HosterInterface hoster = BurningSeries.mapper.readValue(this.call("watch/" + id), Hoster.class);
+		this.markAsUnwatched(hoster.getEpisode());
+		return hoster;
 	}
 	
-	public boolean markAsWatched(int id)
+	public boolean markAsWatched(int id) throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return false;
+		}
+		
+		this.call("watch/" + id);
+		
+		return true;
 	}
 	
-	public boolean markAsWatched(int serie, int season, int episode)
+	public boolean markAsWatched(int serie, int season, int episode) throws Exception
 	{
-		Hoster[] hoster = this.getHoster(serie, season, episode);
+		HosterInterface[] hoster = this.getHoster(serie, season, episode);
 		int randomHoster = new Random().nextInt(hoster.length);
 		return this.markAsWatched(hoster[randomHoster].getId());
 	}
 	
-	public boolean markAsUnwatched(int id)
+	public boolean markAsUnwatched(int id) throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return false;
+		}
+		
+		HashMap<String, Boolean> temp = BurningSeries.mapper.readValue(this.call("unwatch/" + id), new TypeReference<HashMap<String, Boolean>>() {});
+		
+		return temp.get("success");
 	}
 	
-	public boolean markAsUnwatched(int serie, int season, int episode)
+	public boolean markAsUnwatched(int serie, int season, int episode) throws Exception
 	{
-		Episode episodeObj = this.getEpisode(serie, season, episode);
+		EpisodeInterface episodeObj = this.getEpisode(serie, season, episode);
 		return this.markAsUnwatched(episodeObj.getId());
 	}
 	
-	public Serie[] getFavoriteSeries()
+	public SerieInterface[] getFavoriteSeries() throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return new Serie[0];
+		}
+		
+		return BurningSeries.mapper.readValue(this.call("user/series"), Serie[].class);	
 	}
 	
-	public boolean setFavoriteSeries(Serie[] series)
+	public boolean setFavoriteSeries(SerieInterface[] series) throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return false;
+		}
+		
+		String seriesParam = "";
+		String glue = "";
+		for(SerieInterface serie : series) {
+			seriesParam += glue + serie.getId();
+			glue = ",";
+		}
+		
+		if(seriesParam.equals("")) {
+			seriesParam = "0";
+		}
+		
+		this.call("user/series/set/" + seriesParam);
+		
+		return true;
 	}
 	
-	public String login(String name, String password)
+	public String login(String name, String password) throws Exception
 	{
-		// TODO
+		HashMap<String, String> login = new HashMap<String, String>();
+		login.put("login[user]", name);
+		login.put("login[pass]", password);
+		
+		HashMap<String, String> response = BurningSeries.mapper.readValue(this.call("login", login), new TypeReference<HashMap<String, String>>() {});
+
+		this.setSessionId(response.get("session"));
+		
+		return response.get("session");
 	}
 	
 	public void logout()
 	{
-		// TODO
+		this.call("logout");
+		this.setSessionId();
 	}
 	
-	public int getVersion(String system)
+	public int getVersion(String system) throws Exception
 	{
-		// TODO
+		HashMap<String, Integer> temp = BurningSeries.mapper.readValue(this.call("version/" + system), new TypeReference<HashMap<String, Integer>>() {});
+		return temp.get("version");
 	}
 	
 	/****************************************
 	 ************ Config Helpers ************
 	 ****************************************/
 	
+	public BurningSeries()
+	{
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+	};
+	
 	public BurningSeries(String session)
 	{
+		this();
 		this.setSessionId(session);
 	}
 	
 	public BurningSeries(String name, String password)
 	{
-		this.login(name, password);
+		this();
+		
+		// Don't throw errors in the constructor (better error handling will be added later anyways)
+		try {
+			this.login(name, password);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void setBaseUrl(String baseUrl)
@@ -407,6 +522,11 @@ public class BurningSeries {
 		return this.sessionId;
 	}
 	
+	public static ObjectMapper getMapper()
+	{
+		return mapper;
+	}
+	
 	/******************************************
 	 ************ Internal Helpers ************
 	 ******************************************/
@@ -416,14 +536,71 @@ public class BurningSeries {
 		return this.baseUrl + link;
 	}
 	
-	protected Object call(String link, Object[] post)
+	protected String call(String link, HashMap<String, String> post)
 	{
-		// TODO
+		link = this.baseApiUrl + link;
+		
+		if(this.sessionId != null) {
+			link += "?s=" + this.sessionId;
+		}
+
+		this.calls++;
+		
+		HttpURLConnection connection = null;
+		try {
+			URL url = new URL(link);
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setUseCaches(false);
+			connection.setDoOutput(true);
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			connection.setRequestProperty("User-Agent", "Java Library");
+
+			String urlParameter = "";
+			if(post.size() > 0) {
+				this.postCalls++;
+
+				String add = "";
+				for(Entry<String, String> entry : post.entrySet()) {
+					urlParameter += add + entry.getKey() + "=" + URLEncoder.encode(entry.getValue());
+					add = "&";
+				}
+				
+				connection.setRequestMethod("POST");
+			} else {
+				connection.setRequestMethod("GET");
+			}
+
+			connection.setRequestProperty("Content-Length", Integer.toString(urlParameter.getBytes().length));
+			
+			DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
+			wr.writeBytes(urlParameter);
+			wr.close();
+
+			//Get Response  
+			InputStream is = connection.getInputStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+			StringBuilder response = new StringBuilder();
+			String line;
+			while((line = rd.readLine()) != null) {
+				response.append(line);
+				response.append('\r');
+			}
+			rd.close();
+			return response.toString();
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+			return null;
+		} finally {
+			if(connection != null) {
+				connection.disconnect(); 
+			}
+		}
 	}
 	
-	protected Object call(String link)
+	protected String call(String link)
 	{
-		return call(link, new Object[0]);
+		return call(link, new HashMap<String, String>());
 	}
 	
 
@@ -445,4 +622,8 @@ public class BurningSeries {
 	{
 		return this.calls - this.postCalls;
 	}
+	
+	
+	
+	
 }
