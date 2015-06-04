@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../src/BurningSeries.js"></script>
+</head>
+<body>
+<script>
+    BurningSeries.disableCache();
+
+    // As those are asynchronous calls the cache would be populated AFTER all requests are sent
+    // To show the difference we need to wait till the first request is finished
+    // Though it's not needed for disabled cache we want to show exactly the difference ;)
+    BurningSeries.getSeries(function (data)
+    {
+        BurningSeries.getNewest(function (data)
+        {
+            BurningSeries.search('Naruto', function (data)
+            {
+                BurningSeries.getByName('Dragonball', function (data)
+                {
+                    var withoutCaching = BurningSeries.getNumCalls();
+
+                    document.writeln(" Without caching we'd have run " + withoutCaching + " API calls.");
+
+                    enableCache(withoutCaching);
+                });
+            });
+        });
+    });
+
+    function enableCache(withoutCaching)
+    {
+        BurningSeries.enableCache();
+
+        BurningSeries.getSeries(function (data)
+        {
+            BurningSeries.getNewest(function (data)
+            {
+                BurningSeries.search('Naruto', function (data)
+                {
+                    BurningSeries.getByName('Dragonball', function (data)
+                    {
+                        var withCaching = BurningSeries.getNumCalls() - withoutCaching;
+
+                        document.write("With caching we've " + withCaching + " calls.");
+                    });
+                });
+            });
+        });
+    }
+</script>
+
+Loading, please wait <br/>
+
+</body>
+</html>

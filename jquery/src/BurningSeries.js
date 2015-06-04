@@ -16,6 +16,17 @@
 		calls: 0,
 		postCalls: 0,
 
+		enableCaching: true,
+		cache: {},
+		dontCache: [
+			'watch',
+			'unwatch',
+			'user/series/set',
+			'login',
+			'logout',
+		],
+
+
 		/*****************************************
 		 ************ General Helpers ************
 		 *****************************************/
@@ -49,7 +60,7 @@
 					}
 				}
 
-				callback(result);
+				BurningSeries.callCallback(callback, result);
 			});
 		},
 
@@ -58,7 +69,7 @@
 			this.search(name, true, function (data)
 			{
 				if (data.length == 0) {
-					callback({});
+					BurningSeries.callCallback(callback, {});
 					return;
 				}
 
@@ -71,11 +82,11 @@
 			this.getSerieObject(serie, function (data)
 			{
 				if (typeof data == 'undefined' || data.length == 0) {
-					callback('');
+					BurningSeries.callCallback(callback, '');
 					return;
 				}
 
-				callback(BurningSeries.buildLink(data.url));
+				BurningSeries.callCallback(callback, BurningSeries.buildLink(data.url));
 			});
 		},
 
@@ -85,7 +96,7 @@
 
 			this.buildSerieUrl(serie, function (data)
 			{
-				callback(data + '/' + season);
+				BurningSeries.callCallback(callback, data + '/' + season);
 			});
 		},
 
@@ -95,7 +106,7 @@
 
 			this.buildSeasonUrl(serie, season, function (data)
 			{
-				callback(data + '/' + episode + '-Episode');
+				BurningSeries.callCallback(callback, data + '/' + episode + '-Episode');
 			});
 		},
 
@@ -112,54 +123,60 @@
 			}
 		},
 
-		getCover: function(serie, callback)
+		getCover: function (serie, callback)
 		{
-			this.getSerieObject(serie, function(data) {
-				callback(BurningSeries.coverUrl.replace('{id}', data.id));
+			this.getSerieObject(serie, function (data)
+			{
+				BurningSeries.callCallback(callback, BurningSeries.coverUrl.replace('{id}', data.id));
 			});
 		},
 
-		getGenres: function(callback)
+		getGenres: function (callback)
 		{
-			this.getSeries(this.SORT_GENRE, function(data) {
+			this.getSeries(this.SORT_GENRE, function (data)
+			{
 				var keys = [];
-				for(var key in data) {
+				for (var key in data) {
 					keys.push(key);
 				}
-				callback(keys);
+				BurningSeries.callCallback(callback, keys);
 			});
 		},
 
-		hasWatched: function(serie, season, episode, callback)
+		hasWatched: function (serie, season, episode, callback)
 		{
 			if (this.sessionId == null) {
-				callback(false);
+				this.callCallback(callback, false);
 			}
 
-			this.getSerieObject(serie, function(serie) {
-				BurningSeries.getSeason(serie.id, season, function(season) {
+			this.getSerieObject(serie, function (serie)
+			{
+				BurningSeries.getSeason(serie.id, season, function (season)
+				{
 					episode = parseInt(episode);
 
-					for(var key in season) {
-						if(season[key]['epi'] != episode) {
+					for (var key in season) {
+						if (season[key]['epi'] != episode) {
 							continue;
 						}
 
-						season[key]['watched'] == 1 ? callback(true) : callback(false);
+						var parameter = season[key]['watched'] == 1 ? true : false;
+						BurningSeries.callCallback(callback, parameter);
 						return;
 					}
 
-					callback(false);
+					BurningSeries.callCallback(callback, false);
 				});
 			});
 		},
 
-		getNextUnwatchedEpisode: function(serie, season, offset, callback)
+		getNextUnwatchedEpisode: function (serie, season, offset, callback)
 		{
-			alert('Not yet implemented');return;
+			alert('Not yet implemented');
+			return;
 
-			if(typeof callback == 'undefined') {
-				if(typeof offset == 'undefined') {
+			if (typeof callback == 'undefined') {
+				if (typeof offset == 'undefined') {
 					callback = season;
 					season = undefined;
 				} else {
@@ -168,85 +185,94 @@
 				}
 			}
 
-			this.getSerieObject(serie, function(serie) {
+			this.getSerieObject(serie, function (serie)
+			{
 				var seasons = [];
-				if(typeof season == 'undefined') {
-					for (var i= 1; i<=serie.seasons; i++) {
+				if (typeof season == 'undefined') {
+					for (var i = 1; i <= serie.seasons; i++) {
 						seasons.push(i);
 					}
 				} else {
 					seasons = [parseInt(season)];
 				}
 
-				for(var key in seasons) {
+				for (var key in seasons) {
 					var season = seasons[key];
-// Async call in for loop results in unwanted results (season 8 answers before season 7 etc)
-					BurningSeries.getSeason(serie.id, season, function(episodes) {
-						if(typeof offset != 'undefined') {
+
+					// Async call in for loop results in unwanted results (season 8 answers before season 7 etc)
+					BurningSeries.getSeason(serie.id, season, function (episodes)
+					{
+						if (typeof offset != 'undefined') {
 							episodes = episodes.slice(offset);
 						}
 
-						for(var i in episodes) {
+						for (var i in episodes) {
 							var episode = episodes[i];
 
-							if(episode.watched == 1) {
+							if (episode.watched == 1) {
 								continue;
 							}
-console.log(episode.epi);
+							console.log(episode.epi);
 							BurningSeries.getEpisode(serie.id, season, episode.epi, callback);
 							return;
 						}
 					});
 				}
 
-				callback({});
+				BurningSeries.callCallback(callback, {});
 			});
 		},
 
-		getNextUnwatchedMovie: function(serie, callback)
+		getNextUnwatchedMovie: function (serie, callback)
 		{
 			this.getNextUnwatchedEpisode(serie, 0, callback);
 		},
 
-		markAsFavorite: function(serie, callback)
+		markAsFavorite: function (serie, callback)
 		{
 			if (this.sessionId == null) {
-				callback(false);
+				this.callCallback(callback, false);
+				return;
 			}
 
-			this.getSerieObject(serie, function(serie) {
-				BurningSeries.getFavoriteSeries(function(favorites) {
+			this.getSerieObject(serie, function (serie)
+			{
+				BurningSeries.getFavoriteSeries(function (favorites)
+				{
 					var favoriteIds = [];
 
-					for(var key in favorites) {
+					for (var key in favorites) {
 						favoriteIds.push(favorites[key].id);
 					}
 
-					if($.inArray(serie.id, favoriteIds) != -1) {
-						callback(true);
+					if ($.inArray(serie.id, favoriteIds) != -1) {
+						BurningSeries.callCallback(callback, true);
 						return;
 					}
 
 					favoriteIds.push(serie.id);
 
-					callback(BurningSeries.setFavoriteSeries(favoriteIds));
+					BurningSeries.callCallback(callback, BurningSeries.setFavoriteSeries(favoriteIds));
 				});
 			});
 		},
 
-		unmarkAsFavorite: function(serie, callback)
+		unmarkAsFavorite: function (serie, callback)
 		{
 			if (this.sessionId == null) {
-				callback(false);
+				BurningSeries.callCallback(callback, false);
+				return;
 			}
 
-			this.getSerieObject(serie, function(serie) {
-				BurningSeries.getFavoriteSeries(function(favorites) {
+			this.getSerieObject(serie, function (serie)
+			{
+				BurningSeries.getFavoriteSeries(function (favorites)
+				{
 					var favoriteIds = [];
 					var isFavorite = false;
 
-					for(var key in favorites) {
-						if(favorites[key].id == serie.id) {
+					for (var key in favorites) {
+						if (favorites[key].id == serie.id) {
 							isFavorite = true;
 							continue;
 						}
@@ -254,32 +280,34 @@ console.log(episode.epi);
 						favoriteIds.push(favorites[key].id);
 					}
 
-					if(!isFavorite) {
-						callback(true);
+					if (!isFavorite) {
+						BurningSeries.callCallback(callback, true);
 						return;
 					}
 
-					callback(BurningSeries.setFavoriteSeries(favoriteIds));
+					BurningSeries.callCallback(callback, BurningSeries.setFavoriteSeries(favoriteIds));
 				})
 			});
 		},
 
-		isFavoritedSerie: function(serie, callback)
+		isFavoritedSerie: function (serie, callback)
 		{
 			if (this.sessionId == null) {
 				return false;
 			}
 
-			this.getSerieObject(serie, function(serie) {
-				BurningSeries.getFavoriteSeries(function(favorites) {
-					for(var key in favorites) {
-						if(favorites[key].id == serie.id) {
-							callback(true);
+			this.getSerieObject(serie, function (serie)
+			{
+				BurningSeries.getFavoriteSeries(function (favorites)
+				{
+					for (var key in favorites) {
+						if (favorites[key].id == serie.id) {
+							BurningSeries.callCallback(callback, true);
 							return;
 						}
 					}
 
-					callback(false);
+					BurningSeries.callCallback(callback, false);
 				});
 			});
 		},
@@ -290,7 +318,7 @@ console.log(episode.epi);
 
 		getSeries: function (sort, callback)
 		{
-			if(typeof callback == 'undefined') {
+			if (typeof callback == 'undefined') {
 				callback = sort;
 				sort = this.SORT_ALPHABETICAL;
 			}
@@ -305,7 +333,7 @@ console.log(episode.epi);
 				nCallback = function (data)
 				{
 					data = BurningSeries.sortById(data);
-					callback(data);
+					BurningSeries.callCallback(callback, data);
 				}
 			}
 
@@ -322,25 +350,25 @@ console.log(episode.epi);
 
 				if (typeof genre == 'string') {
 					if (series.hasOwnProperty(genre)) {
-						callback(series[genre]);
+						BurningSeries.callCallback(callback, series[genre]);
 						return;
 					}
 
-					callback([]);
+					BurningSeries.callCallback(callback, []);
 					return;
 				}
 				else {
 					if (Number.isInteger(genre)) {
 						for (var key in series) {
 							if (series[key].id == genre) {
-								callback(series[key]);
+								BurningSeries.callCallback(callback, series[key]);
 								return;
 							}
 						}
 					}
 				}
 
-				callback([]);
+				BurningSeries.callCallback(callback, []);
 			});
 		},
 
@@ -356,11 +384,11 @@ console.log(episode.epi);
 			this.call('series/' + serie + '/1', function (data)
 			{
 				if (typeof data.series == 'undefined') {
-					callback({});
+					BurningSeries.callCallback(callback, {});
 					return;
 				}
 
-				callback(data.series);
+				BurningSeries.callCallback(callback, data.series);
 			});
 		},
 
@@ -372,11 +400,11 @@ console.log(episode.epi);
 			this.call('series/' + serie + '/' + season, function (data)
 			{
 				if (typeof data.epi == 'undefined') {
-					callback([]);
+					BurningSeries.callCallback(callback, []);
 					return;
 				}
 
-				callback(data.epi);
+				BurningSeries.callCallback(callback, data.epi);
 			});
 		},
 
@@ -394,11 +422,11 @@ console.log(episode.epi);
 			this.call('series/' + serie + '/' + season + '/' + episode, function (data)
 			{
 				if (typeof data.epi == 'undefined') {
-					callback({});
+					BurningSeries.callCallback(callback, {});
 					return;
 				}
 
-				callback(data.epi);
+				BurningSeries.callCallback(callback, data.epi);
 			});
 		},
 
@@ -428,11 +456,11 @@ console.log(episode.epi);
 			this.call('series/' + serie + '/' + season + '/' + episode, function (data)
 			{
 				if (typeof data.links == 'undefined') {
-					callback([]);
+					BurningSeries.callCallback(callback, []);
 					return;
 				}
 
-				callback(data.links);
+				BurningSeries.callCallback(callback, data.links);
 			});
 		},
 
@@ -442,8 +470,8 @@ console.log(episode.epi);
 
 			this.call('watch/' + id, function (data)
 			{
-				//BurningSeries.markAsUnwatched(data.epi);
-				callback(data);
+				BurningSeries.markAsUnwatched(data.epi);
+				BurningSeries.callCallback(callback, data);
 			});
 		},
 
@@ -471,7 +499,7 @@ console.log(episode.epi);
 		markAsUnwatched: function (id, season, episode, callback)
 		{
 			if (this.sessionId == null) {
-				callback(false);
+				BurningSeries.callCallback(callback, false);
 				return false;
 			}
 
@@ -493,14 +521,14 @@ console.log(episode.epi);
 
 			this.call('unwatch/' + id, function (data)
 			{
-				callback(data.success);
+				BurningSeries.callCallback(callback, data.success);
 			});
 		},
 
 		getFavoriteSeries: function (callback)
 		{
 			if (this.sessionId == null) {
-				callback([]);
+				BurningSeries.callCallback(callback, []);
 				return;
 			}
 
@@ -540,7 +568,7 @@ console.log(episode.epi);
 			{
 				console.log(data);
 				BurningSeries.setSessionId(data.session);
-				callback(data.session);
+				BurningSeries.callCallback(callback, data.session);
 			}, login);
 		},
 
@@ -555,11 +583,11 @@ console.log(episode.epi);
 			this.call('version/' + system, function (data)
 			{
 				if (typeof data.version == 'undefined') {
-					callback(false);
+					BurningSeries.callCallback(callback, false);
 					return;
 				}
 
-				callback(data.version);
+				BurningSeries.callCallback(callback, data.version);
 			});
 		},
 
@@ -644,7 +672,7 @@ console.log(episode.epi);
 		{
 			// It's an array which seems to be a series? Good
 			if (typeof serie.id != 'undefined') {
-				callback(serie);
+				BurningSeries.callCallback(callback, serie);
 				return;
 			}
 
@@ -656,7 +684,7 @@ console.log(episode.epi);
 						alert('Error getting the series');
 					}
 
-					callback(data);
+					BurningSeries.callCallback(callback, data);
 				});
 				return;
 			}
@@ -687,6 +715,14 @@ console.log(episode.epi);
 
 		call: function (link, callback, post)
 		{
+			// Only return cache if caching is enabled, this url should be cached, has a cache and if it's not a post
+			if (this.isCaching() && this.shouldBeCached(link) && this.hasCache(link) && typeof post == 'undefined') {
+				BurningSeries.callCallback(callback, this.getCache(link));
+				return;
+			}
+
+			var cacheName = link;
+
 			link = this.baseApiUrl + link;
 
 			if (this.sessionId !== null) {
@@ -695,7 +731,7 @@ console.log(episode.epi);
 
 			this.calls++;
 
-			httpMethod = 'post';
+			var httpMethod = 'post';
 			if (typeof post == 'undefined') {
 				httpMethod = 'get';
 				post = [];
@@ -707,8 +743,22 @@ console.log(episode.epi);
 				dataType: 'json',
 				type: httpMethod,
 				url: link,
-				success: callback
+				success: function(data) {
+					// Only cache if caching is enabled, this url should be cached and if it's not a post request
+					if (BurningSeries.isCaching() && BurningSeries.shouldBeCached(cacheName) && httpMethod != 'post') {
+						BurningSeries.putCache(cacheName, data);
+					}
+
+					BurningSeries.callCallback(callback, data);
+				}
 			});
+		},
+
+		callCallback: function(callback, data)
+		{
+			if(typeof callback == 'function') {
+				callback(data);
+			}
 		},
 
 		sortById: function (data)
@@ -729,6 +779,66 @@ console.log(episode.epi);
 			}
 
 			return sortedObject;
+		},
+
+		/*****************************************
+		 ************ Caching Helpers ************
+		 *****************************************/
+
+		putCache: function (url, data)
+		{
+			this.cache[url] = data;
+		},
+
+		hasCache: function (url)
+		{
+			return (typeof this.cache[url] != 'undefined');
+		},
+
+		getCache: function (url)
+		{
+			return this.cache[url];
+		},
+
+		shouldBeCached: function (url)
+		{
+			if ($.inArray(url, this.dontCache) != -1) {
+				return false;
+			}
+
+			for (var key in this.dontCache) {
+				var notCache = this.dontCache[key];
+
+				if (url.indexOf(notCache) === 0) {
+					return false;
+				}
+			}
+
+			return true;
+		},
+
+		invalidateCache: function (url)
+		{
+			if (typeof url == 'undefined') {
+				this.cache = {};
+			} else {
+				this.cache[url] = undefined;
+			}
+		},
+
+		disableCache: function ()
+		{
+			this.enableCaching = false;
+		},
+
+		enableCache: function ()
+		{
+			this.enableCaching = true;
+		},
+
+		isCaching: function ()
+		{
+			return this.enableCaching;
 		},
 
 		/*****************************************
