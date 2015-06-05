@@ -71,7 +71,9 @@ public class Serie implements SerieInterface {
 
 	@Override
 	public void setStart(String start) {
-		this.start = Integer.parseInt(start);
+		if(start != null) {
+			this.start = Integer.parseInt(start);
+		}
 	}
 
 	@Override
@@ -81,7 +83,9 @@ public class Serie implements SerieInterface {
 
 	@Override
 	public void setEnd(String end) {
-		this.end = Integer.parseInt(end);
+		if(end != null) {
+			this.end = Integer.parseInt(end);
+		}
 	}
 
 	@Override

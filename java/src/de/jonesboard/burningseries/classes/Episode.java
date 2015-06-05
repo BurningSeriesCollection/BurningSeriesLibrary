@@ -77,4 +77,14 @@ public class Episode implements EpisodeInterface {
 				+ ", description=" + description + ", id=" + id + "]";
 	}
 
+	@Override
+	public int compareTo(EpisodeInterface compare) {
+		if( this.getEpisodeNumber() < compare.getEpisodeNumber() )
+			return -1;
+		if( this.getEpisodeNumber() > compare.getEpisodeNumber() )
+			return 1;
+		
+		return 0;
+	}
+
 }

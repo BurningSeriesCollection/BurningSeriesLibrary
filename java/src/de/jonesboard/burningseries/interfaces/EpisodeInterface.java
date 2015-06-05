@@ -1,6 +1,6 @@
 package de.jonesboard.burningseries.interfaces;
 
-public interface EpisodeInterface {
+public interface EpisodeInterface extends Comparable<EpisodeInterface> {
 	// German name
 	public void setGerman(String german);
 	public String getGerman();

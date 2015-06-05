@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -47,64 +48,89 @@ public class BurningSeries {
 	 ************ General Helpers ************
 	 *****************************************/
 	
-	public SerieInterface[] search(String name, boolean exact)
+	public SerieInterface[] search(String name, boolean exact) throws Exception
 	{
-		// TODO
+		SerieInterface[] series = this.getSeries();
+		
+		ArrayList<SerieInterface> result = new ArrayList<SerieInterface>();
+		
+		for(SerieInterface serie : series) {
+			if(!exact && serie.getName().toLowerCase().indexOf(name.toLowerCase()) > -1) {
+				result.add(serie);
+			} else if(exact && serie.getName().toLowerCase().equals(name.toLowerCase())) {
+				result.add(serie);
+			}
+		}
+
+		// If we're searching exact names we only expect one result
+		if (exact && result.size() > 1) {
+			return new SerieInterface[0];
+		}
+
+		return mapper.convertValue(result, Serie[].class);
 	}
 	
-	public SerieInterface[] search(String name)
+	public SerieInterface[] search(String name) throws Exception
 	{
 		return this.search(name, false);
 	}
 	
-	public SerieInterface getByName(String name)
+	public SerieInterface getByName(String name) throws Exception
 	{
 		SerieInterface[] serie = this.search(name, true);
+		
+		if(serie.length != 1) {
+			return null;
+		}
 		
 		return this.getSerie(serie[0].getId());
 	}
 	
 	public String buildSerieUrl(SerieInterface serie)
 	{
-		// TODO
+		if(serie.getUrl().equals("")) {
+			return "";
+		}
+		
+		return this.buildLink(serie.getUrl());
 	}
 
-	public String buildSerieUrl(int serie)
+	public String buildSerieUrl(int serie) throws Exception
 	{
 		return this.buildSerieUrl(this.getSerie(serie));
 	}
 	
-	public String buildSerieUrl(String serie)
+	public String buildSerieUrl(String serie) throws Exception
 	{
 		return this.buildSerieUrl(this.getByName(serie));
 	}
 	
 	public String buildSeasonUrl(SerieInterface serie, int season)
 	{
-		// TODO
+		return this.buildSerieUrl(serie) + "/" + season;
 	}
 	
-	public String buildSeasonUrl(int serie, int season)
+	public String buildSeasonUrl(int serie, int season) throws Exception
 	{
 		return this.buildSeasonUrl(this.getSerie(serie), season);
 	}
 	
-	public String buildSeasonUrl(String serie, int season)
+	public String buildSeasonUrl(String serie, int season) throws Exception
 	{
 		return this.buildSeasonUrl(this.getByName(serie), season);
 	}
 	
 	public String buildEpisodeUrl(SerieInterface serie, int season, int episode)
 	{
-		// TODO
+		return this.buildSeasonUrl(serie, season) + "/" + episode + "-Episode";
 	}
 	
-	public String buildEpisodeUrl(int serie, int season, int episode)
+	public String buildEpisodeUrl(int serie, int season, int episode) throws Exception
 	{
 		return this.buildEpisodeUrl(this.getSerie(serie), season, episode);
 	}
 	
-	public String buildEpisodeUrl(String serie, int season, int episode)
+	public String buildEpisodeUrl(String serie, int season, int episode) throws Exception
 	{
 		return this.buildEpisodeUrl(this.getByName(serie), season, episode);
 	}
@@ -113,7 +139,7 @@ public class BurningSeries {
 
 	public String getCover(int serie)
 	{
-		// TODO
+		return this.coverUrl.replace("{id}", String.valueOf(serie));
 	}
 	
 	public String getCover(SerieInterface serie)
@@ -121,132 +147,222 @@ public class BurningSeries {
 		return this.getCover(serie.getId());
 	}
 	
-	public String getCover(String serie)
+	public String getCover(String serie) throws Exception
 	{
 		return this.getCover(this.getByName(serie));
 	}
 	
-	public String[] getGenres()
+	public String[] getGenres() throws Exception
 	{
-		// TODO
+		return mapper.convertValue(this.getByGenre().keySet().toArray(), String[].class);
 	}
 	
-	public boolean hasWatched(int serie, int season, int episode)
+	public boolean hasWatched(int serie, int season, int episode) throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return false;
+		}
+		
+		SeasonInterface seasonObject = this.getSeason(serie, season);
+		
+		for(EpisodeInterface episodeObject : seasonObject.getEpisodes()) {
+			if(episodeObject.getEpisodeNumber() != episode) {
+				continue;
+			}
+			
+			return episodeObject.hasWatched();
+		}
+		
+		return false;
 	}
 	
-	public boolean hasWatched(SerieInterface serie, int season, int episode)
+	public boolean hasWatched(SerieInterface serie, int season, int episode) throws Exception
 	{
 		return this.hasWatched(serie.getId(), season, episode);
 	}
 	
-	public boolean hasWatched(String serie, int season, int episode)
+	public boolean hasWatched(String serie, int season, int episode) throws Exception
 	{
 		return this.hasWatched(this.getByName(serie), season, episode);
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season, int offset)
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season, int offset) throws Exception
 	{
-		// TODO
+		ArrayList<Integer> seasons = new ArrayList<Integer>();
+		
+		if(season > -1) {
+			seasons.add(season);
+		} else {
+			for(int i = 1; i <= serie.getSeasons(); i++) {
+				seasons.add(i);
+			}
+		}
+		
+		for(int testSeason : seasons) {
+			EpisodeInterface[] episodes = this.getSeason(serie.getId(), testSeason).getEpisodes();
+			Arrays.sort(episodes);
+
+			if(offset > -1) {
+				episodes = Arrays.copyOfRange(episodes, offset, episodes.length);
+			}
+			
+			for(EpisodeInterface episode : episodes) {
+				if(episode.hasWatched()) {
+					continue;
+				}
+				
+				return this.getEpisode(serie.getId(), season, episode.getEpisodeNumber());
+			}
+		}
+		
+		return null;
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season, int offset)
+	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season, int offset) throws Exception
 	{
-		return this.getNextUnwatchedEpisode(serie.getId(), season, offset);
+		return this.getNextUnwatchedEpisode(this.getSerie(serie), season, offset);
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season, int offset)
+	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season, int offset) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(this.getByName(serie), season, offset);
 	}
 
-	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season)
+	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season)
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season)
+	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(int serie)
+	public EpisodeInterface getNextUnwatchedEpisode(int serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie)
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
 	
-	public EpisodeInterface getNextUnwatchedEpisode(String serie)
+	public EpisodeInterface getNextUnwatchedEpisode(String serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
 	
-	public EpisodeInterface getNextUnwatchedMovie(int serie)
+	public EpisodeInterface getNextUnwatchedMovie(int serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
 	
-	public EpisodeInterface getNextUnwatchedMovie(SerieInterface serie)
+	public EpisodeInterface getNextUnwatchedMovie(SerieInterface serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
 	
-	public EpisodeInterface getNextUnwatchedMovie(String serie)
+	public EpisodeInterface getNextUnwatchedMovie(String serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
 	
-	public boolean markAsFavorite(int serie)
+	public boolean markAsFavorite(int serie) throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return false;
+		}
+		
+		SerieInterface[] favorites = this.getFavoriteSeries();
+		ArrayList<Integer> favoriteIds = new ArrayList<Integer>();
+		for(SerieInterface favorite : favorites) {
+			favoriteIds.add(favorite.getId());
+		}
+		
+		if(favoriteIds.contains(serie)) {
+			return true;
+		}
+		
+		favoriteIds.add(serie);
+		
+		return this.setFavoriteSeries(favoriteIds);
 	}
 	
-	public boolean markAsFavorite(SerieInterface serie)
+	public boolean markAsFavorite(SerieInterface serie) throws Exception
 	{
 		return this.markAsFavorite(serie.getId());
 	}
 	
-	public boolean markAsFavorite(String serie)
+	public boolean markAsFavorite(String serie) throws Exception
 	{
 		return this.markAsFavorite(this.getByName(serie));
 	}
 	
-	public boolean unmarkAsFavorite(int serie)
+	public boolean unmarkAsFavorite(int serie) throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return false;
+		}
+		
+		SerieInterface[] favorites = this.getFavoriteSeries();
+		
+		ArrayList<Integer> favoriteIds = new ArrayList<Integer>();
+		boolean isFavorite = false;
+		for(SerieInterface favorite : favorites) {
+			if(favorite.getId() == serie) {
+				isFavorite = true;
+				continue;
+			}
+			
+			favoriteIds.add(favorite.getId());
+		}
+		
+		if(!isFavorite) {
+			return true;
+		}
+		
+		return this.setFavoriteSeries(favoriteIds);
 	}
 	
-	public boolean unmarkAsFavorite(SerieInterface serie)
+	public boolean unmarkAsFavorite(SerieInterface serie) throws Exception
 	{
 		return this.unmarkAsFavorite(serie.getId());
 	}
 	
-	public boolean unmarkAsFavorite(String serie)
+	public boolean unmarkAsFavorite(String serie) throws Exception
 	{
 		return this.unmarkAsFavorite(this.getByName(serie));
 	}
 	
-	public boolean isFavoritedSerie(int serie)
+	public boolean isFavoritedSerie(int serie) throws Exception
 	{
-		// TODO
+		if(this.sessionId == null) {
+			return false;
+		}
+		
+		SerieInterface[] favorites = this.getFavoriteSeries();
+		
+		for(SerieInterface favorite : favorites) {
+			if(favorite.getId() == serie) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
-	public boolean isFavoritedSerie(SerieInterface serie)
+	public boolean isFavoritedSerie(SerieInterface serie) throws Exception
 	{
 		return this.isFavoritedSerie(serie.getId());
 	}
 	
-	public boolean isFavoritedSerie(String serie)
+	public boolean isFavoritedSerie(String serie) throws Exception
 	{
 		return this.isFavoritedSerie(this.getByName(serie));
 	}
@@ -335,7 +451,9 @@ public class BurningSeries {
 	public EpisodeInterface getEpisode(int serie, int season, int episode) throws Exception
 	{
 		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
-		return mapper.convertValue(temp.get("epi"), Episode.class);
+		EpisodeInterface episodeObject = mapper.convertValue(temp.get("epi"), Episode.class);
+		episodeObject.setEpi(String.valueOf(episode));
+		return episodeObject;
 	}
 	
 	// TODO: Check whether "get" function can be added
@@ -397,7 +515,7 @@ public class BurningSeries {
 		return BurningSeries.mapper.readValue(this.call("user/series"), Serie[].class);	
 	}
 	
-	public boolean setFavoriteSeries(SerieInterface[] series) throws Exception
+	public boolean setFavoriteSeries(int[] series) throws Exception
 	{
 		if(this.sessionId == null) {
 			return false;
@@ -405,8 +523,8 @@ public class BurningSeries {
 		
 		String seriesParam = "";
 		String glue = "";
-		for(SerieInterface serie : series) {
-			seriesParam += glue + serie.getId();
+		for(int serie : series) {
+			seriesParam += glue + serie;
 			glue = ",";
 		}
 		
@@ -417,6 +535,24 @@ public class BurningSeries {
 		this.call("user/series/set/" + seriesParam);
 		
 		return true;
+	}
+	
+	public boolean setFavoriteSeries(SerieInterface[] series) throws Exception
+	{
+		ArrayList<Integer> favorites = new ArrayList<Integer>();
+		for(SerieInterface serie : series) {
+			favorites.add(serie.getId());
+		}
+		return this.setFavoriteSeries(favorites);
+	}
+	
+	public boolean setFavoriteSeries(ArrayList<Integer> series) throws Exception
+	{
+		int[] favorites = new int[series.size()];
+		for(int i = 0; i < series.size(); i++) {
+			favorites[i] = series.get(i);
+		}
+		return this.setFavoriteSeries(favorites);
 	}
 	
 	public String login(String name, String password) throws Exception
@@ -536,6 +672,7 @@ public class BurningSeries {
 		return this.baseUrl + link;
 	}
 	
+	@SuppressWarnings("deprecation")
 	protected String call(String link, HashMap<String, String> post)
 	{
 		link = this.baseApiUrl + link;
