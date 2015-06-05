@@ -41,6 +41,16 @@ public class BurningSeries {
 	private int calls = 0;
 	private int postCalls = 0;
 
+	private boolean enableCaching = true;
+	private HashMap<String, String> cache = new HashMap<String, String>();
+	private String[] dontCache = {
+				"watch",
+				"unwatch",
+				"user/series/set",
+				"login",
+				"logout"
+	};
+	
 	private static ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
 
 	
@@ -675,6 +685,13 @@ public class BurningSeries {
 	@SuppressWarnings("deprecation")
 	protected String call(String link, HashMap<String, String> post)
 	{
+		// Only return cache if caching is enabled, this url should be cached, has a cache and if it's not a post
+		if (this.isCaching() && this.shouldBeCached(link) && this.hasCache(link) && post.size() == 0) {
+			return this.getCache(link);
+		}
+
+		String cacheName = link;
+		
 		link = this.baseApiUrl + link;
 		
 		if(this.sessionId != null) {
@@ -723,7 +740,14 @@ public class BurningSeries {
 				response.append('\r');
 			}
 			rd.close();
-			return response.toString();
+			String cache = response.toString();
+			
+			// Only cache if caching is enabled, this url should be cached and if it's not a post request
+			if (this.isCaching() && this.shouldBeCached(cacheName) && post.size() == 0) {
+				this.putCache(cacheName, cache);
+			}
+			
+			return cache;
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
@@ -739,7 +763,56 @@ public class BurningSeries {
 	{
 		return call(link, new HashMap<String, String>());
 	}
+
+	/*****************************************
+	 ************ Caching Helpers ************
+	 *****************************************/
+
+	private void putCache(String url, String data)
+	{
+		this.cache.put(url, data);
+	}
 	
+	private boolean hasCache(String url)
+	{
+		return this.cache.containsKey(url);
+	}
+	
+	private String getCache(String url)
+	{
+		return this.cache.get(url);
+	}
+	
+	private boolean shouldBeCached(String url)
+	{
+		for(String notCache : this.dontCache) {
+			if(url.indexOf(notCache) == 0) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public void invalidateCache(String url)
+	{
+		this.cache.remove(url);
+	}
+	
+	public void disableCache()
+	{
+		this.enableCaching = false;
+	}
+	
+	public void enableCache()
+	{
+		this.enableCaching = true;
+	}
+	
+	public boolean isCaching()
+	{
+		return this.enableCaching;
+	}
 
 	/*****************************************
 	 ************* Debug Helpers *************
