@@ -10,7 +10,7 @@ public interface EpisodeInterface extends Comparable<EpisodeInterface> {
 	public String getEnglish();
 	
 	// Episode number
-	public void setEpi(String epi);
+	public void setEpi(int epi);
 	public int getEpisodeNumber();
 	
 	// Has watched?
@@ -22,6 +22,6 @@ public interface EpisodeInterface extends Comparable<EpisodeInterface> {
 	public String getDescription();
 	
 	// Internal ID
-	public void setId(String id);
+	public void setId(int id);
 	public int getId();
 }

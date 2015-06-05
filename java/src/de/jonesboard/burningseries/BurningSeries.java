@@ -462,7 +462,7 @@ public class BurningSeries {
 	{
 		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
 		EpisodeInterface episodeObject = mapper.convertValue(temp.get("epi"), Episode.class);
-		episodeObject.setEpi(String.valueOf(episode));
+		episodeObject.setEpi(episode);
 		return episodeObject;
 	}
 	

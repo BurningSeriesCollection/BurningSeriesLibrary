@@ -31,8 +31,8 @@ public class Episode implements EpisodeInterface {
 	}
 
 	@Override
-	public void setEpi(String epi) {
-		this.episode = Integer.parseInt(epi);
+	public void setEpi(int epi) {
+		this.episode = epi;
 	}
 
 	@Override
@@ -61,8 +61,8 @@ public class Episode implements EpisodeInterface {
 	}
 
 	@Override
-	public void setId(String id) {
-		this.id = Integer.parseInt(id);
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override

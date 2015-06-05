@@ -6,11 +6,11 @@ public interface HosterInterface {
 	public String getName();
 	
 	// Which part is it?
-	public void setPart(String part);
+	public void setPart(int part);
 	public int getPart();
 	
 	// Internal ID
-	public void setId(String id);
+	public void setId(int id);
 	public int getId();
 	
 	// Part of the URL
@@ -18,7 +18,7 @@ public interface HosterInterface {
 	public String getUrl();
 	
 	// Episode (internal ID)
-	public void setEpi(String epi);
+	public void setEpi(int epi);
 	public int getEpisode();
 	
 	// Full url

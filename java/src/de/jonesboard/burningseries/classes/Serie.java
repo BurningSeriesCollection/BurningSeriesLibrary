@@ -70,10 +70,8 @@ public class Serie implements SerieInterface {
 	}
 
 	@Override
-	public void setStart(String start) {
-		if(start != null) {
-			this.start = Integer.parseInt(start);
-		}
+	public void setStart(int start) {
+		this.start = start;
 	}
 
 	@Override
@@ -82,10 +80,8 @@ public class Serie implements SerieInterface {
 	}
 
 	@Override
-	public void setEnd(String end) {
-		if(end != null) {
-			this.end = Integer.parseInt(end);
-		}
+	public void setEnd(int end) {
+		this.end = end;
 	}
 
 	@Override
@@ -104,8 +100,8 @@ public class Serie implements SerieInterface {
 	}
 
 	@Override
-	public void setSeasons(String seasons) {
-		this.seasons = Integer.parseInt(seasons);
+	public void setSeasons(int seasons) {
+		this.seasons = seasons;
 	}
 
 	@Override

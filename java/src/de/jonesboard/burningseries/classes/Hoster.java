@@ -21,8 +21,8 @@ public class Hoster implements HosterInterface {
 	}
 
 	@Override
-	public void setPart(String part) {
-		this.part = Integer.parseInt(part);
+	public void setPart(int part) {
+		this.part = part;
 	}
 
 	@Override
@@ -31,8 +31,8 @@ public class Hoster implements HosterInterface {
 	}
 
 	@Override
-	public void setId(String id) {
-		this.id = Integer.parseInt(id);
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override
@@ -51,8 +51,8 @@ public class Hoster implements HosterInterface {
 	}
 
 	@Override
-	public void setEpi(String epi) {
-		this.episode = Integer.parseInt(epi);
+	public void setEpi(int epi) {
+		this.episode = epi;
 	}
 
 	@Override

@@ -21,11 +21,11 @@ public interface SerieInterface extends Comparable<SerieInterface> {
 	public String getDescription();
 	
 	// Start Date
-	public void setStart(String start);
+	public void setStart(int start);
 	public int getStart();
 	
 	// End Date
-	public void setEnd(String end);
+	public void setEnd(int end);
 	public int getEnd();
 	
 	// Has movie?
@@ -33,7 +33,7 @@ public interface SerieInterface extends Comparable<SerieInterface> {
 	public boolean hasMovies();
 	
 	// Seasons
-	public void setSeasons(String seasons);
+	public void setSeasons(int seasons);
 	public int getSeasons();
 	
 	// Data Array
