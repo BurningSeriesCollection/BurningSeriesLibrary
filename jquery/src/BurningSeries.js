@@ -468,11 +468,7 @@
 		{
 			id = parseInt(id);
 
-			this.call('watch/' + id, function (data)
-			{
-				BurningSeries.markAsUnwatched(data.epi);
-				BurningSeries.callCallback(callback, data);
-			});
+			this.call('watch/' + id, callback, undefined, false);
 		},
 
 		markAsWatched: function (id, season, episode)
@@ -713,7 +709,7 @@
 			alert('Serie needs to be either an integer, a string or an array');
 		},
 
-		call: function (link, callback, post)
+		call: function (link, callback, post, session)
 		{
 			// Only return cache if caching is enabled, this url should be cached, has a cache and if it's not a post
 			if (this.isCaching() && this.shouldBeCached(link) && this.hasCache(link) && typeof post == 'undefined') {
@@ -725,7 +721,7 @@
 
 			link = this.baseApiUrl + link;
 
-			if (this.sessionId !== null) {
+			if (this.sessionId !== null && (typeof session == "undefined" || session == true)) {
 				link += '?s=' + this.sessionId;
 			}
 

@@ -547,12 +547,7 @@ class BurningSeries
 	{
 		$id = (int)$id;
 
-		$videoData = $this->call("watch/{$id}");
-
-		// Episode is marked as watched automatically so unmark it
-		$this->markAsUnwatched($videoData['epi']);
-
-		return $videoData;
+		return $this->call("watch/{$id}", false, false);
 	}
 
 	/**
@@ -872,7 +867,7 @@ class BurningSeries
 	 *
 	 * @return array
 	 */
-	protected function call($link, $post = false)
+	protected function call($link, $post = false, $session = true)
 	{
 		// Only return cache if caching is enabled, this url should be cached, has a cache and if it's not a post
 		if ($this->isCaching() && $this->shouldBeCached($link) && $this->hasCache($link) && $post === false) {
@@ -883,7 +878,7 @@ class BurningSeries
 
 		$link = $this->baseApiUrl . $link;
 
-		if ($this->sessionId !== null) {
+		if ($this->sessionId !== null && $session) {
 			$link .= '?s=' . $this->sessionId;
 		}
 

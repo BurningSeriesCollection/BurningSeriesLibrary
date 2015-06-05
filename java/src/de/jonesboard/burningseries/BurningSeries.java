@@ -850,9 +850,7 @@ public class BurningSeries {
 	 */
 	public HosterInterface getVideo(int id) throws Exception
 	{
-		HosterInterface hoster = BurningSeries.mapper.readValue(this.call("watch/" + id), Hoster.class);
-		this.markAsUnwatched(hoster.getEpisode());
-		return hoster;
+		return BurningSeries.mapper.readValue(this.call("watch/" + id, false), Hoster.class);
 	}
 	
 	/**
@@ -1174,7 +1172,7 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 */
-	protected String call(String link, HashMap<String, String> post)
+	protected String call(String link, HashMap<String, String> post, boolean session)
 	{
 		// Only return cache if caching is enabled, this url should be cached, has a cache and if it's not a post
 		if (this.isCaching() && this.shouldBeCached(link) && this.hasCache(link) && post.size() == 0) {
@@ -1185,7 +1183,7 @@ public class BurningSeries {
 		
 		link = this.baseApiUrl + link;
 		
-		if(this.sessionId != null) {
+		if(this.sessionId != null && session) {
 			link += "?s=" + this.sessionId;
 		}
 
@@ -1249,7 +1247,28 @@ public class BurningSeries {
 			}
 		}
 	}
-	
+
+	/**
+	 * @param link
+	 * @param post
+	 * 
+	 * @return
+	 */
+	protected String call(String link, HashMap<String, String> post)
+	{
+		return this.call(link, post, true);
+	}
+
+	/**
+	 * @param link
+	 * @param session
+	 * 
+	 * @return
+	 */
+	protected String call(String link, boolean session) {
+		return this.call(link, new HashMap<String, String>(), session);
+	}
+
 	/**
 	 * @param link
 	 * 
@@ -1257,7 +1276,7 @@ public class BurningSeries {
 	 */
 	protected String call(String link)
 	{
-		return call(link, new HashMap<String, String>());
+		return call(link, new HashMap<String, String>(), true);
 	}
 
 	/*****************************************
