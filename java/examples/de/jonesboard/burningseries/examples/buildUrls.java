@@ -1,6 +1,7 @@
 package de.jonesboard.burningseries.examples;
 
 import de.jonesboard.burningseries.BurningSeries;
+import de.jonesboard.burningseries.exceptions.SerieNotFoundException;
 
 public class buildUrls {
 
@@ -20,8 +21,8 @@ public class buildUrls {
 			System.out.println("Serie for " + serie + ";\tLink: " + serieUrl);
 			System.out.println("Season " + season + ";\tLink: " + seasonUrl);
 			System.out.println("Episode " + episode + ";\tLink: " + episodeUrl);
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(SerieNotFoundException e) {
+			System.out.println("Couldn't find serie " + serie);
 		}
 	}
 

@@ -8,16 +8,12 @@ public class newestSeries {
 	public static void main(String[] args) {
 		BurningSeries bs = new BurningSeries();
 
-		try {
-			SerieInterface[] newestSeries = bs.getNewest();
+		SerieInterface[] newestSeries = bs.getNewest();
 
-			System.out.println("Latest Series:");
-			
-			for(int i = 0; i < 5; i++) {
-				System.out.println(newestSeries[i].getName() + " (ID: " + newestSeries[i].getId() + ")");
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		System.out.println("Latest Series:");
+		
+		for(int i = 0; i < 5; i++) {
+			System.out.println(newestSeries[i].getName() + " (ID: " + newestSeries[i].getId() + ")");
 		}
 	}
 

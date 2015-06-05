@@ -1,6 +1,7 @@
 package de.jonesboard.burningseries.examples;
 
 import de.jonesboard.burningseries.BurningSeries;
+import de.jonesboard.burningseries.exceptions.SerieNotFoundException;
 
 public class getCovers {
 
@@ -14,8 +15,8 @@ public class getCovers {
 			String coverUrl = bs.getCover(serie);
 	
 			System.out.println("Cover for " + serie + ";\tLink: " + coverUrl);
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(SerieNotFoundException e) {
+			System.out.println("Couldn't find serie " + serie);
 		}
 	}
 

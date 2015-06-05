@@ -8,17 +8,13 @@ public class getSeries {
 	public static void main(String[] args) {
 		BurningSeries bs = new BurningSeries();
 
-		try {
-			SerieInterface[] series = bs.getSeries();
-			int numSeries = series.length;
+		SerieInterface[] series = bs.getSeries();
+		int numSeries = series.length;
 
-			System.out.println("We currently have " + String.valueOf(numSeries) + " Series:");
-			
-			for(SerieInterface serie : series) {
-				System.out.println(serie.getName() + " (ID: " + serie.getId() + ")");
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		System.out.println("We currently have " + String.valueOf(numSeries) + " Series:");
+		
+		for(SerieInterface serie : series) {
+			System.out.println(serie.getName() + " (ID: " + serie.getId() + ")");
 		}
 	}
 

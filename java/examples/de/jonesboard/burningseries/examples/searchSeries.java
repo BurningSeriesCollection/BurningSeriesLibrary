@@ -10,17 +10,13 @@ public class searchSeries {
 
 		BurningSeries bs = new BurningSeries();
 
-		try {
-			// If the second parameter is set to "true" only exact matches will be returned
-			SerieInterface[] series = bs.search(search);
+		// If the second parameter is set to "true" only exact matches will be returned
+		SerieInterface[] series = bs.search(search);
 
-			System.out.println("Search for " + search + " gave back:");
-			
-			for(SerieInterface serie : series) {
-				System.out.println(serie.getName() + " (ID: " + serie.getId() + ")");
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		System.out.println("Search for " + search + " gave back:");
+		
+		for(SerieInterface serie : series) {
+			System.out.println(serie.getName() + " (ID: " + serie.getId() + ")");
 		}
 	}
 

@@ -7,16 +7,12 @@ public class getGenres {
 	public static void main(String[] args) {
 		BurningSeries bs = new BurningSeries();
 
-		try {
-			String[] genres = bs.getGenres();
-	
-			System.out.println("The following genres exist:");
+		String[] genres = bs.getGenres();
 
-			for(String genre : genres) {
-				System.out.println(genre);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		System.out.println("The following genres exist:");
+
+		for(String genre : genres) {
+			System.out.println(genre);
 		}
 	}
 

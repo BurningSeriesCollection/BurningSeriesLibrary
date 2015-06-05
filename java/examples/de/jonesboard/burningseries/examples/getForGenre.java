@@ -10,16 +10,12 @@ public class getForGenre {
 
 		BurningSeries bs = new BurningSeries();
 
-		try {
-			SerieInterface[] series = bs.getByGenre(genre);
-	
-			System.out.println("The following series have genre " + genre + ":");
+		SerieInterface[] series = bs.getByGenre(genre);
 
-			for(SerieInterface serie : series) {
-				System.out.println(serie.getName() + " (ID: " + serie.getId() + ")");
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		System.out.println("The following series have genre " + genre + ":");
+
+		for(SerieInterface serie : series) {
+			System.out.println(serie.getName() + " (ID: " + serie.getId() + ")");
 		}
 	}
 

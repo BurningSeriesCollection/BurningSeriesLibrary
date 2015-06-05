@@ -22,6 +22,11 @@ import de.jonesboard.burningseries.classes.Episode;
 import de.jonesboard.burningseries.classes.Hoster;
 import de.jonesboard.burningseries.classes.Season;
 import de.jonesboard.burningseries.classes.Serie;
+import de.jonesboard.burningseries.exceptions.EpisodeNotFoundException;
+import de.jonesboard.burningseries.exceptions.HosterNotFoundException;
+import de.jonesboard.burningseries.exceptions.InvalidLoginException;
+import de.jonesboard.burningseries.exceptions.SeasonNotFoundException;
+import de.jonesboard.burningseries.exceptions.SerieNotFoundException;
 import de.jonesboard.burningseries.interfaces.EpisodeInterface;
 import de.jonesboard.burningseries.interfaces.HosterInterface;
 import de.jonesboard.burningseries.interfaces.SeasonInterface;
@@ -51,6 +56,8 @@ public class BurningSeries {
 				"logout"
 	};
 	
+	private boolean isDebug = false;
+	
 	private static ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
 
 	
@@ -63,10 +70,8 @@ public class BurningSeries {
 	 * @param exact If true, only one series with the exact name will be returned
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public SerieInterface[] search(String name, boolean exact) throws Exception
+	public SerieInterface[] search(String name, boolean exact)
 	{
 		SerieInterface[] series = this.getSeries();
 		
@@ -92,10 +97,8 @@ public class BurningSeries {
 	 * @param name
 	 *
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public SerieInterface[] search(String name) throws Exception
+	public SerieInterface[] search(String name)
 	{
 		return this.search(name, false);
 	}
@@ -105,14 +108,14 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException
 	 */
-	public SerieInterface getByName(String name) throws Exception
+	public SerieInterface getByName(String name) throws SerieNotFoundException
 	{
 		SerieInterface[] serie = this.search(name, true);
 		
 		if(serie.length != 1) {
-			return null;
+			throw new SerieNotFoundException();
 		}
 		
 		return this.getSerie(serie[0].getId());
@@ -137,9 +140,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public String buildSerieUrl(int serie) throws Exception
+	public String buildSerieUrl(int serie) throws SerieNotFoundException
 	{
 		return this.buildSerieUrl(this.getSerie(serie));
 	}
@@ -149,9 +152,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public String buildSerieUrl(String serie) throws Exception
+	public String buildSerieUrl(String serie) throws SerieNotFoundException
 	{
 		return this.buildSerieUrl(this.getByName(serie));
 	}
@@ -173,9 +176,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public String buildSeasonUrl(int serie, int season) throws Exception
+	public String buildSeasonUrl(int serie, int season) throws SerieNotFoundException 
 	{
 		return this.buildSeasonUrl(this.getSerie(serie), season);
 	}
@@ -186,9 +189,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public String buildSeasonUrl(String serie, int season) throws Exception
+	public String buildSeasonUrl(String serie, int season) throws SerieNotFoundException
 	{
 		return this.buildSeasonUrl(this.getByName(serie), season);
 	}
@@ -212,9 +215,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public String buildEpisodeUrl(int serie, int season, int episode) throws Exception
+	public String buildEpisodeUrl(int serie, int season, int episode) throws SerieNotFoundException
 	{
 		return this.buildEpisodeUrl(this.getSerie(serie), season, episode);
 	}
@@ -226,9 +229,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public String buildEpisodeUrl(String serie, int season, int episode) throws Exception
+	public String buildEpisodeUrl(String serie, int season, int episode) throws SerieNotFoundException
 	{
 		return this.buildEpisodeUrl(this.getByName(serie), season, episode);
 	}
@@ -260,19 +263,17 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public String getCover(String serie) throws Exception
+	public String getCover(String serie) throws SerieNotFoundException
 	{
 		return this.getCover(this.getByName(serie));
 	}
 
 	/**
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public String[] getGenres() throws Exception
+	public String[] getGenres()
 	{
 		return mapper.convertValue(this.getByGenre().keySet().toArray(), String[].class);
 	}
@@ -284,9 +285,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public boolean hasWatched(int serie, int season, int episode) throws Exception
+	public boolean hasWatched(int serie, int season, int episode) throws SeasonNotFoundException
 	{
 		if(this.sessionId == null) {
 			return false;
@@ -312,9 +313,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public boolean hasWatched(SerieInterface serie, int season, int episode) throws Exception
+	public boolean hasWatched(SerieInterface serie, int season, int episode) throws SeasonNotFoundException
 	{
 		return this.hasWatched(serie.getId(), season, episode);
 	}
@@ -326,9 +327,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public boolean hasWatched(String serie, int season, int episode) throws Exception
+	public boolean hasWatched(String serie, int season, int episode) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.hasWatched(this.getByName(serie), season, episode);
 	}
@@ -340,9 +342,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season, int offset) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season, int offset) throws SeasonNotFoundException
 	{
 		ArrayList<Integer> seasons = new ArrayList<Integer>();
 		
@@ -367,7 +369,14 @@ public class BurningSeries {
 					continue;
 				}
 				
-				return this.getEpisode(serie.getId(), season, episode.getEpisodeNumber());
+				// As we're passing already fetched data here it shouldn't throw an exception. So we're catching it here
+				try {
+					return this.getEpisode(serie.getId(), season, episode.getEpisodeNumber());
+				} catch (EpisodeNotFoundException e) {
+					if(this.isDebug) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 		
@@ -381,9 +390,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season, int offset) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season, int offset) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(this.getSerie(serie), season, offset);
 	}
@@ -395,9 +405,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season, int offset) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season, int offset) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(this.getByName(serie), season, offset);
 	}
@@ -408,9 +419,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
@@ -421,9 +433,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season) throws SeasonNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
@@ -434,9 +446,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
@@ -446,9 +459,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(int serie) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(int serie) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
@@ -458,9 +472,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie) throws SeasonNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
@@ -470,9 +484,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedEpisode(String serie) throws Exception
+	public EpisodeInterface getNextUnwatchedEpisode(String serie) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
@@ -482,9 +497,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedMovie(int serie) throws Exception
+	public EpisodeInterface getNextUnwatchedMovie(int serie) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
@@ -494,9 +510,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedMovie(SerieInterface serie) throws Exception
+	public EpisodeInterface getNextUnwatchedMovie(SerieInterface serie) throws SeasonNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
@@ -506,9 +522,10 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
+	 * @throws SeasonNotFoundException 
 	 */
-	public EpisodeInterface getNextUnwatchedMovie(String serie) throws Exception
+	public EpisodeInterface getNextUnwatchedMovie(String serie) throws SeasonNotFoundException, SerieNotFoundException
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
@@ -517,10 +534,8 @@ public class BurningSeries {
 	 * @param serie
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean markAsFavorite(int serie) throws Exception
+	public boolean markAsFavorite(int serie)
 	{
 		if(this.sessionId == null) {
 			return false;
@@ -545,10 +560,8 @@ public class BurningSeries {
 	 * @param serie
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean markAsFavorite(SerieInterface serie) throws Exception
+	public boolean markAsFavorite(SerieInterface serie)
 	{
 		return this.markAsFavorite(serie.getId());
 	}
@@ -558,9 +571,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public boolean markAsFavorite(String serie) throws Exception
+	public boolean markAsFavorite(String serie) throws SerieNotFoundException
 	{
 		return this.markAsFavorite(this.getByName(serie));
 	}
@@ -569,10 +582,8 @@ public class BurningSeries {
 	 * @param serie
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean unmarkAsFavorite(int serie) throws Exception
+	public boolean unmarkAsFavorite(int serie)
 	{
 		if(this.sessionId == null) {
 			return false;
@@ -602,10 +613,8 @@ public class BurningSeries {
 	 * @param serie
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean unmarkAsFavorite(SerieInterface serie) throws Exception
+	public boolean unmarkAsFavorite(SerieInterface serie)
 	{
 		return this.unmarkAsFavorite(serie.getId());
 	}
@@ -615,9 +624,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public boolean unmarkAsFavorite(String serie) throws Exception
+	public boolean unmarkAsFavorite(String serie) throws SerieNotFoundException
 	{
 		return this.unmarkAsFavorite(this.getByName(serie));
 	}
@@ -626,10 +635,8 @@ public class BurningSeries {
 	 * @param serie
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean isFavoritedSerie(int serie) throws Exception
+	public boolean isFavoritedSerie(int serie)
 	{
 		if(this.sessionId == null) {
 			return false;
@@ -650,10 +657,8 @@ public class BurningSeries {
 	 * @param serie
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean isFavoritedSerie(SerieInterface serie) throws Exception
+	public boolean isFavoritedSerie(SerieInterface serie)
 	{
 		return this.isFavoritedSerie(serie.getId());
 	}
@@ -663,9 +668,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public boolean isFavoritedSerie(String serie) throws Exception
+	public boolean isFavoritedSerie(String serie) throws SerieNotFoundException
 	{
 		return this.isFavoritedSerie(this.getByName(serie));
 	}
@@ -679,12 +684,18 @@ public class BurningSeries {
 	 * @param sort
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public SerieInterface[] getSeries(int sort) throws Exception
+	public SerieInterface[] getSeries(int sort)
 	{
-		SerieInterface[] series = BurningSeries.mapper.readValue(this.call("series"), Serie[].class);
+		SerieInterface[] series;
+		try {
+			series = BurningSeries.mapper.readValue(this.call("series"), Serie[].class);
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			return new SerieInterface[0];
+		}
 		
 		if(sort == BurningSeries.SORT_NEWEST) {
 			Arrays.sort(series);
@@ -695,22 +706,27 @@ public class BurningSeries {
 	
 	/**
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public SerieInterface[] getSeries() throws Exception
+	public SerieInterface[] getSeries()
 	{
 		return this.getSeries(BurningSeries.SORT_ALPHABETICAL);
 	}
 
 	/**
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public HashMap<String, SerieInterface[]> getByGenre() throws Exception
+	public HashMap<String, SerieInterface[]> getByGenre()
 	{
-		HashMap<String, HashMap<String, Object>> temp = BurningSeries.mapper.readValue(this.call("series:genre"), new TypeReference<HashMap<String, HashMap<String, Object>>>() {});
+		HashMap<String, HashMap<String, Object>> temp;
+		try {
+			temp = BurningSeries.mapper.readValue(this.call("series:genre"), new TypeReference<HashMap<String, HashMap<String, Object>>>() {});
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			return new HashMap<String, SerieInterface[]>();
+		}
 		
 		HashMap<String, SerieInterface[]> returnValue = new HashMap<String, SerieInterface[]>();
 		
@@ -739,10 +755,8 @@ public class BurningSeries {
 	 * @param genre
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public SerieInterface[] getByGenre(String genre) throws Exception
+	public SerieInterface[] getByGenre(String genre)
 	{
 		HashMap<String, SerieInterface[]> genres = this.getByGenre();
 		
@@ -755,10 +769,8 @@ public class BurningSeries {
 	
 	/**
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public SerieInterface[] getNewest() throws Exception
+	public SerieInterface[] getNewest()
 	{
 		return this.getSeries(BurningSeries.SORT_NEWEST);
 	}
@@ -768,11 +780,24 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SerieNotFoundException 
 	 */
-	public SerieInterface getSerie(int serie) throws Exception
+	public SerieInterface getSerie(int serie) throws SerieNotFoundException
 	{
-		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/1"), new TypeReference<HashMap<String, Object>>() {});
+		HashMap<String, Object> temp;
+		try {
+			temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/1"), new TypeReference<HashMap<String, Object>>() {});
+			
+			if(temp.containsKey("error")) {
+				throw new SerieNotFoundException();
+			}
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			throw new SerieNotFoundException();
+		}
 		return mapper.convertValue(temp.get("series"), Serie.class);
 	}
 	
@@ -782,11 +807,20 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public SeasonInterface getSeason(int serie, int season) throws Exception
+	public SeasonInterface getSeason(int serie, int season) throws SeasonNotFoundException
 	{
-		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season), new TypeReference<HashMap<String, Object>>() {});
+		HashMap<String, Object> temp;
+		try {
+			temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season), new TypeReference<HashMap<String, Object>>() {});
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			throw new SeasonNotFoundException();
+		}
 		EpisodeInterface[] episodes = mapper.convertValue(temp.get("epi"), Episode[].class);
 		
 		SeasonInterface seasonObject = new Season();
@@ -800,9 +834,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws SeasonNotFoundException 
 	 */
-	public SeasonInterface getMovies(int serie) throws Exception
+	public SeasonInterface getMovies(int serie) throws SeasonNotFoundException
 	{
 		return this.getSeason(serie, 0);
 	}
@@ -814,11 +848,20 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws EpisodeNotFoundException 
 	 */
-	public EpisodeInterface getEpisode(int serie, int season, int episode) throws Exception
+	public EpisodeInterface getEpisode(int serie, int season, int episode) throws EpisodeNotFoundException
 	{
-		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
+		HashMap<String, Object> temp;
+		try {
+			temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			throw new EpisodeNotFoundException();
+		}
 		EpisodeInterface episodeObject = mapper.convertValue(temp.get("epi"), Episode.class);
 		episodeObject.setEpi(episode);
 		return episodeObject;
@@ -833,11 +876,20 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws EpisodeNotFoundException
 	 */
-	public HosterInterface[] getHoster(int serie, int season, int episode) throws Exception
+	public HosterInterface[] getHoster(int serie, int season, int episode) throws EpisodeNotFoundException
 	{
-		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
+		HashMap<String, Object> temp;
+		try {
+			temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			throw new EpisodeNotFoundException();
+		}
 		return mapper.convertValue(temp.get("links"), Hoster[].class);
 	}
 	
@@ -846,21 +898,27 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws HosterNotFoundException 
 	 */
-	public HosterInterface getVideo(int id) throws Exception
+	public HosterInterface getVideo(int id) throws HosterNotFoundException
 	{
-		return BurningSeries.mapper.readValue(this.call("watch/" + id, false), Hoster.class);
+		try {
+			return BurningSeries.mapper.readValue(this.call("watch/" + id, false), Hoster.class);
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			throw new HosterNotFoundException();
+		}
 	}
 	
 	/**
 	 * @param id
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean markAsWatched(int id) throws Exception
+	public boolean markAsWatched(int id)
 	{
 		if(this.sessionId == null) {
 			return false;
@@ -878,9 +936,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws EpisodeNotFoundException 
 	 */
-	public boolean markAsWatched(int serie, int season, int episode) throws Exception
+	public boolean markAsWatched(int serie, int season, int episode) throws EpisodeNotFoundException
 	{
 		HosterInterface[] hoster = this.getHoster(serie, season, episode);
 		int randomHoster = new Random().nextInt(hoster.length);
@@ -892,15 +950,24 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws EpisodeNotFoundException 
 	 */
-	public boolean markAsUnwatched(int id) throws Exception
+	public boolean markAsUnwatched(int id) throws EpisodeNotFoundException
 	{
 		if(this.sessionId == null) {
 			return false;
 		}
 		
-		HashMap<String, Boolean> temp = BurningSeries.mapper.readValue(this.call("unwatch/" + id), new TypeReference<HashMap<String, Boolean>>() {});
+		HashMap<String, Boolean> temp;
+		try {
+			temp = BurningSeries.mapper.readValue(this.call("unwatch/" + id), new TypeReference<HashMap<String, Boolean>>() {});
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			throw new EpisodeNotFoundException();
+		}
 		
 		return temp.get("success");
 	}
@@ -912,9 +979,9 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws EpisodeNotFoundException
 	 */
-	public boolean markAsUnwatched(int serie, int season, int episode) throws Exception
+	public boolean markAsUnwatched(int serie, int season, int episode) throws EpisodeNotFoundException
 	{
 		EpisodeInterface episodeObj = this.getEpisode(serie, season, episode);
 		return this.markAsUnwatched(episodeObj.getId());
@@ -922,26 +989,30 @@ public class BurningSeries {
 	
 	/**
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public SerieInterface[] getFavoriteSeries() throws Exception
+	public SerieInterface[] getFavoriteSeries()
 	{
 		if(this.sessionId == null) {
 			return new Serie[0];
 		}
 		
-		return BurningSeries.mapper.readValue(this.call("user/series"), Serie[].class);	
+		try {
+			return BurningSeries.mapper.readValue(this.call("user/series"), Serie[].class);
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			return new SerieInterface[0];
+		}
 	}
 	
 	/**
 	 * @param series
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean setFavoriteSeries(int[] series) throws Exception
+	public boolean setFavoriteSeries(int[] series)
 	{
 		if(this.sessionId == null) {
 			return false;
@@ -967,10 +1038,8 @@ public class BurningSeries {
 	 * @param series
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean setFavoriteSeries(SerieInterface[] series) throws Exception
+	public boolean setFavoriteSeries(SerieInterface[] series)
 	{
 		ArrayList<Integer> favorites = new ArrayList<Integer>();
 		for(SerieInterface serie : series) {
@@ -983,10 +1052,8 @@ public class BurningSeries {
 	 * @param series
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public boolean setFavoriteSeries(ArrayList<Integer> series) throws Exception
+	public boolean setFavoriteSeries(ArrayList<Integer> series)
 	{
 		int[] favorites = new int[series.size()];
 		for(int i = 0; i < series.size(); i++) {
@@ -1001,15 +1068,28 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 * 
-	 * @throws Exception
+	 * @throws InvalidLoginException
 	 */
-	public String login(String name, String password) throws Exception
+	public String login(String name, String password) throws InvalidLoginException
 	{
 		HashMap<String, String> login = new HashMap<String, String>();
 		login.put("login[user]", name);
 		login.put("login[pass]", password);
 		
-		HashMap<String, String> response = BurningSeries.mapper.readValue(this.call("login", login), new TypeReference<HashMap<String, String>>() {});
+		HashMap<String, String> response;
+		try {
+			response = BurningSeries.mapper.readValue(this.call("login", login), new TypeReference<HashMap<String, String>>() {});
+			
+			if(response.containsKey("error")) {
+				throw new InvalidLoginException();
+			}
+		} catch (Exception e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			throw new InvalidLoginException();
+		}
 
 		this.setSessionId(response.get("session"));
 		
@@ -1026,12 +1106,19 @@ public class BurningSeries {
 	 * @param system
 	 * 
 	 * @return
-	 * 
-	 * @throws Exception
 	 */
-	public int getVersion(String system) throws Exception
+	public int getVersion(String system)
 	{
-		HashMap<String, Integer> temp = BurningSeries.mapper.readValue(this.call("version/" + system), new TypeReference<HashMap<String, Integer>>() {});
+		HashMap<String, Integer> temp;
+		try {
+			temp = BurningSeries.mapper.readValue(this.call("version/" + system), new TypeReference<HashMap<String, Integer>>() {});
+		} catch (IOException e) {
+			if(this.isDebug) {
+				e.printStackTrace();
+			}
+			
+			return 0;
+		}
 		return temp.get("version");
 	}
 	
@@ -1056,17 +1143,14 @@ public class BurningSeries {
 	/**
 	 * @param name
 	 * @param password
+	 * 
+	 * @throws InvalidLoginException 
 	 */
-	public BurningSeries(String name, String password)
+	public BurningSeries(String name, String password) throws InvalidLoginException
 	{
 		this();
 		
-		// Don't throw errors in the constructor (better error handling will be added later anyways)
-		try {
-			this.login(name, password);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		this.login(name, password);
 	}
 	
 	/**
@@ -1265,7 +1349,8 @@ public class BurningSeries {
 	 * 
 	 * @return
 	 */
-	protected String call(String link, boolean session) {
+	protected String call(String link, boolean session)
+	{
 		return this.call(link, new HashMap<String, String>(), session);
 	}
 

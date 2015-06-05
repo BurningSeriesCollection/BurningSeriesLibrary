@@ -1,6 +1,7 @@
 package de.jonesboard.burningseries.examples;
 
 import de.jonesboard.burningseries.BurningSeries;
+import de.jonesboard.burningseries.exceptions.InvalidLoginException;
 import de.jonesboard.burningseries.interfaces.SerieInterface;
 
 public class getFavoritesAndLogin {
@@ -14,9 +15,10 @@ public class getFavoritesAndLogin {
 			return;
 		}
 
-		BurningSeries bs = new BurningSeries(username, password);
-
 		try {
+			// Login constructor can throw an exception so put this in the try block too
+			BurningSeries bs = new BurningSeries(username, password);
+
 			SerieInterface[] favorites = bs.getFavoriteSeries();
 
 			System.out.println("The session key for this request is " + bs.getSessionId() + " \n");
@@ -28,8 +30,8 @@ public class getFavoritesAndLogin {
 
 			// Don't forget to logout if you're not using the sessionkey somewhere else!
 			bs.logout();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(InvalidLoginException e) {
+			System.out.println("Invalid login for user " + username);
 		}
 	}
 
