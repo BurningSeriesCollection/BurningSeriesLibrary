@@ -58,6 +58,14 @@ public class BurningSeries {
 	 ************ General Helpers ************
 	 *****************************************/
 	
+	/**
+	 * @param name
+	 * @param exact If true, only one series with the exact name will be returned
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface[] search(String name, boolean exact) throws Exception
 	{
 		SerieInterface[] series = this.getSeries();
@@ -80,11 +88,25 @@ public class BurningSeries {
 		return mapper.convertValue(result, Serie[].class);
 	}
 	
+	/**
+	 * @param name
+	 *
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface[] search(String name) throws Exception
 	{
 		return this.search(name, false);
 	}
 	
+	/**
+	 * @param name
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface getByName(String name) throws Exception
 	{
 		SerieInterface[] serie = this.search(name, true);
@@ -96,6 +118,11 @@ public class BurningSeries {
 		return this.getSerie(serie[0].getId());
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 */
 	public String buildSerieUrl(SerieInterface serie)
 	{
 		if(serie.getUrl().equals("")) {
@@ -105,41 +132,102 @@ public class BurningSeries {
 		return this.buildLink(serie.getUrl());
 	}
 
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String buildSerieUrl(int serie) throws Exception
 	{
 		return this.buildSerieUrl(this.getSerie(serie));
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String buildSerieUrl(String serie) throws Exception
 	{
 		return this.buildSerieUrl(this.getByName(serie));
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * 
+	 * @return
+	 */
 	public String buildSeasonUrl(SerieInterface serie, int season)
 	{
 		return this.buildSerieUrl(serie) + "/" + season;
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String buildSeasonUrl(int serie, int season) throws Exception
 	{
 		return this.buildSeasonUrl(this.getSerie(serie), season);
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String buildSeasonUrl(String serie, int season) throws Exception
 	{
 		return this.buildSeasonUrl(this.getByName(serie), season);
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 */
 	public String buildEpisodeUrl(SerieInterface serie, int season, int episode)
 	{
 		return this.buildSeasonUrl(serie, season) + "/" + episode + "-Episode";
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String buildEpisodeUrl(int serie, int season, int episode) throws Exception
 	{
 		return this.buildEpisodeUrl(this.getSerie(serie), season, episode);
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String buildEpisodeUrl(String serie, int season, int episode) throws Exception
 	{
 		return this.buildEpisodeUrl(this.getByName(serie), season, episode);
@@ -147,26 +235,57 @@ public class BurningSeries {
 	
 	// TODO: buildUrl function (9 functions)
 
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 */
 	public String getCover(int serie)
 	{
 		return this.coverUrl.replace("{id}", String.valueOf(serie));
 	}
-	
+
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 */
 	public String getCover(SerieInterface serie)
 	{
 		return this.getCover(serie.getId());
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String getCover(String serie) throws Exception
 	{
 		return this.getCover(this.getByName(serie));
 	}
-	
+
+	/**
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String[] getGenres() throws Exception
 	{
 		return mapper.convertValue(this.getByGenre().keySet().toArray(), String[].class);
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean hasWatched(int serie, int season, int episode) throws Exception
 	{
 		if(this.sessionId == null) {
@@ -185,17 +304,44 @@ public class BurningSeries {
 		
 		return false;
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean hasWatched(SerieInterface serie, int season, int episode) throws Exception
 	{
 		return this.hasWatched(serie.getId(), season, episode);
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean hasWatched(String serie, int season, int episode) throws Exception
 	{
 		return this.hasWatched(this.getByName(serie), season, episode);
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * @param offset
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season, int offset) throws Exception
 	{
 		ArrayList<Integer> seasons = new ArrayList<Integer>();
@@ -227,62 +373,153 @@ public class BurningSeries {
 		
 		return null;
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * @param offset
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season, int offset) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(this.getSerie(serie), season, offset);
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * @param offset
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season, int offset) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(this.getByName(serie), season, offset);
 	}
 
+	/**
+	 * @param serie
+	 * @param season
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(int serie, int season) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie, int season) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
-	
+
+	/**
+	 * @param serie
+	 * @param season
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(String serie, int season) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, season, -1);
 	}
-	
+
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(int serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
-	
+
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(SerieInterface serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
-	
+
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedEpisode(String serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, -1, -1);
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedMovie(int serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedMovie(SerieInterface serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getNextUnwatchedMovie(String serie) throws Exception
 	{
 		return this.getNextUnwatchedEpisode(serie, 0);
 	}
-	
+
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean markAsFavorite(int serie) throws Exception
 	{
 		if(this.sessionId == null) {
@@ -304,16 +541,37 @@ public class BurningSeries {
 		return this.setFavoriteSeries(favoriteIds);
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean markAsFavorite(SerieInterface serie) throws Exception
 	{
 		return this.markAsFavorite(serie.getId());
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean markAsFavorite(String serie) throws Exception
 	{
 		return this.markAsFavorite(this.getByName(serie));
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean unmarkAsFavorite(int serie) throws Exception
 	{
 		if(this.sessionId == null) {
@@ -340,16 +598,37 @@ public class BurningSeries {
 		return this.setFavoriteSeries(favoriteIds);
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean unmarkAsFavorite(SerieInterface serie) throws Exception
 	{
 		return this.unmarkAsFavorite(serie.getId());
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean unmarkAsFavorite(String serie) throws Exception
 	{
 		return this.unmarkAsFavorite(this.getByName(serie));
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean isFavoritedSerie(int serie) throws Exception
 	{
 		if(this.sessionId == null) {
@@ -367,11 +646,25 @@ public class BurningSeries {
 		return false;
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean isFavoritedSerie(SerieInterface serie) throws Exception
 	{
 		return this.isFavoritedSerie(serie.getId());
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean isFavoritedSerie(String serie) throws Exception
 	{
 		return this.isFavoritedSerie(this.getByName(serie));
@@ -382,6 +675,13 @@ public class BurningSeries {
 	 ************ General API ************
 	 *************************************/
 	
+	/**
+	 * @param sort
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface[] getSeries(int sort) throws Exception
 	{
 		SerieInterface[] series = BurningSeries.mapper.readValue(this.call("series"), Serie[].class);
@@ -393,11 +693,21 @@ public class BurningSeries {
 		return series;
 	}
 	
+	/**
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface[] getSeries() throws Exception
 	{
 		return this.getSeries(BurningSeries.SORT_ALPHABETICAL);
 	}
 
+	/**
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public HashMap<String, SerieInterface[]> getByGenre() throws Exception
 	{
 		HashMap<String, HashMap<String, Object>> temp = BurningSeries.mapper.readValue(this.call("series:genre"), new TypeReference<HashMap<String, HashMap<String, Object>>>() {});
@@ -414,12 +724,24 @@ public class BurningSeries {
 		return returnValue;
 	}
 	
+	/**
+	 * @param genre
+	 * 
+	 * @return
+	 */
 	public SerieInterface[] getByGenre(int genre)
 	{
 		// TODO
 		return new Serie[0];
 	}
 	
+	/**
+	 * @param genre
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface[] getByGenre(String genre) throws Exception
 	{
 		HashMap<String, SerieInterface[]> genres = this.getByGenre();
@@ -431,17 +753,37 @@ public class BurningSeries {
 		return new Serie[0];
 	}
 	
+	/**
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface[] getNewest() throws Exception
 	{
 		return this.getSeries(BurningSeries.SORT_NEWEST);
 	}
-	
+
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface getSerie(int serie) throws Exception
 	{
 		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/1"), new TypeReference<HashMap<String, Object>>() {});
 		return mapper.convertValue(temp.get("series"), Serie.class);
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SeasonInterface getSeason(int serie, int season) throws Exception
 	{
 		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season), new TypeReference<HashMap<String, Object>>() {});
@@ -453,11 +795,27 @@ public class BurningSeries {
 		return seasonObject;
 	}
 	
+	/**
+	 * @param serie
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SeasonInterface getMovies(int serie) throws Exception
 	{
 		return this.getSeason(serie, 0);
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public EpisodeInterface getEpisode(int serie, int season, int episode) throws Exception
 	{
 		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
@@ -468,12 +826,28 @@ public class BurningSeries {
 	
 	// TODO: Check whether "get" function can be added
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public HosterInterface[] getHoster(int serie, int season, int episode) throws Exception
 	{
 		HashMap<String, Object> temp = BurningSeries.mapper.readValue(this.call("series/" + serie + "/" + season + "/" + episode), new TypeReference<HashMap<String, Object>>() {});
 		return mapper.convertValue(temp.get("links"), Hoster[].class);
 	}
 	
+	/**
+	 * @param id
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public HosterInterface getVideo(int id) throws Exception
 	{
 		HosterInterface hoster = BurningSeries.mapper.readValue(this.call("watch/" + id), Hoster.class);
@@ -481,6 +855,13 @@ public class BurningSeries {
 		return hoster;
 	}
 	
+	/**
+	 * @param id
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean markAsWatched(int id) throws Exception
 	{
 		if(this.sessionId == null) {
@@ -492,6 +873,15 @@ public class BurningSeries {
 		return true;
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean markAsWatched(int serie, int season, int episode) throws Exception
 	{
 		HosterInterface[] hoster = this.getHoster(serie, season, episode);
@@ -499,6 +889,13 @@ public class BurningSeries {
 		return this.markAsWatched(hoster[randomHoster].getId());
 	}
 	
+	/**
+	 * @param id
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean markAsUnwatched(int id) throws Exception
 	{
 		if(this.sessionId == null) {
@@ -510,12 +907,26 @@ public class BurningSeries {
 		return temp.get("success");
 	}
 	
+	/**
+	 * @param serie
+	 * @param season
+	 * @param episode
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean markAsUnwatched(int serie, int season, int episode) throws Exception
 	{
 		EpisodeInterface episodeObj = this.getEpisode(serie, season, episode);
 		return this.markAsUnwatched(episodeObj.getId());
 	}
 	
+	/**
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public SerieInterface[] getFavoriteSeries() throws Exception
 	{
 		if(this.sessionId == null) {
@@ -525,6 +936,13 @@ public class BurningSeries {
 		return BurningSeries.mapper.readValue(this.call("user/series"), Serie[].class);	
 	}
 	
+	/**
+	 * @param series
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean setFavoriteSeries(int[] series) throws Exception
 	{
 		if(this.sessionId == null) {
@@ -547,6 +965,13 @@ public class BurningSeries {
 		return true;
 	}
 	
+	/**
+	 * @param series
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean setFavoriteSeries(SerieInterface[] series) throws Exception
 	{
 		ArrayList<Integer> favorites = new ArrayList<Integer>();
@@ -556,6 +981,13 @@ public class BurningSeries {
 		return this.setFavoriteSeries(favorites);
 	}
 	
+	/**
+	 * @param series
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public boolean setFavoriteSeries(ArrayList<Integer> series) throws Exception
 	{
 		int[] favorites = new int[series.size()];
@@ -565,6 +997,14 @@ public class BurningSeries {
 		return this.setFavoriteSeries(favorites);
 	}
 	
+	/**
+	 * @param name
+	 * @param password
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public String login(String name, String password) throws Exception
 	{
 		HashMap<String, String> login = new HashMap<String, String>();
@@ -577,13 +1017,20 @@ public class BurningSeries {
 		
 		return response.get("session");
 	}
-	
+
 	public void logout()
 	{
 		this.call("logout");
 		this.setSessionId();
 	}
 	
+	/**
+	 * @param system
+	 * 
+	 * @return
+	 * 
+	 * @throws Exception
+	 */
 	public int getVersion(String system) throws Exception
 	{
 		HashMap<String, Integer> temp = BurningSeries.mapper.readValue(this.call("version/" + system), new TypeReference<HashMap<String, Integer>>() {});
@@ -599,12 +1046,19 @@ public class BurningSeries {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	};
 	
+	/**
+	 * @param session
+	 */
 	public BurningSeries(String session)
 	{
 		this();
 		this.setSessionId(session);
 	}
 	
+	/**
+	 * @param name
+	 * @param password
+	 */
 	public BurningSeries(String name, String password)
 	{
 		this();
@@ -617,6 +1071,9 @@ public class BurningSeries {
 		}
 	}
 	
+	/**
+	 * @param baseUrl
+	 */
 	public void setBaseUrl(String baseUrl)
 	{
 		if(baseUrl != "") {
@@ -624,11 +1081,17 @@ public class BurningSeries {
 		}
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getBaseUrl()
 	{
 		return this.baseUrl;
 	}
 	
+	/**
+	 * @param baseApiUrl
+	 */
 	public void setApiUrl(String baseApiUrl)
 	{
 		if(baseApiUrl != "") {
@@ -636,11 +1099,17 @@ public class BurningSeries {
 		}
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getApiUrl()
 	{
 		return this.baseApiUrl;
 	}
 	
+	/**
+	 * @param coverUrl
+	 */
 	public void setCoverUrl(String coverUrl)
 	{
 		if(coverUrl != "" && coverUrl.indexOf("{id}") != -1) {
@@ -648,11 +1117,17 @@ public class BurningSeries {
 		}
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getCoverUrl()
 	{
 		return this.coverUrl;
 	}
 	
+	/**
+	 * @param sessionId
+	 */
 	public void setSessionId(String sessionId)
 	{
 		this.sessionId = sessionId;
@@ -663,11 +1138,17 @@ public class BurningSeries {
 		this.setSessionId(null);
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getSessionId()
 	{
 		return this.sessionId;
 	}
 	
+	/**
+	 * @return
+	 */
 	public static ObjectMapper getMapper()
 	{
 		return mapper;
@@ -677,12 +1158,22 @@ public class BurningSeries {
 	 ************ Internal Helpers ************
 	 ******************************************/
 	
+	/**
+	 * @param link
+	 * @return
+	 */
 	protected String buildLink(String link)
 	{
 		return this.baseUrl + link;
 	}
 	
 	@SuppressWarnings("deprecation")
+	/**
+	 * @param link
+	 * @param post
+	 * 
+	 * @return
+	 */
 	protected String call(String link, HashMap<String, String> post)
 	{
 		// Only return cache if caching is enabled, this url should be cached, has a cache and if it's not a post
@@ -759,6 +1250,11 @@ public class BurningSeries {
 		}
 	}
 	
+	/**
+	 * @param link
+	 * 
+	 * @return
+	 */
 	protected String call(String link)
 	{
 		return call(link, new HashMap<String, String>());
@@ -768,21 +1264,40 @@ public class BurningSeries {
 	 ************ Caching Helpers ************
 	 *****************************************/
 
+	/**
+	 * @param url
+	 * @param data
+	 */
 	private void putCache(String url, String data)
 	{
 		this.cache.put(url, data);
 	}
 	
+	/**
+	 * @param url
+	 * 
+	 * @return
+	 */
 	private boolean hasCache(String url)
 	{
 		return this.cache.containsKey(url);
 	}
 	
+	/**
+	 * @param url
+	 * 
+	 * @return
+	 */
 	private String getCache(String url)
 	{
 		return this.cache.get(url);
 	}
 	
+	/**
+	 * @param url
+	 * 
+	 * @return
+	 */
 	private boolean shouldBeCached(String url)
 	{
 		for(String notCache : this.dontCache) {
@@ -794,6 +1309,9 @@ public class BurningSeries {
 		return true;
 	}
 	
+	/**
+	 * @param url
+	 */
 	public void invalidateCache(String url)
 	{
 		this.cache.remove(url);
@@ -809,6 +1327,9 @@ public class BurningSeries {
 		this.enableCaching = true;
 	}
 	
+	/**
+	 * @return
+	 */
 	public boolean isCaching()
 	{
 		return this.enableCaching;
@@ -818,22 +1339,27 @@ public class BurningSeries {
 	 ************* Debug Helpers *************
 	 *****************************************/
 	
+	/**
+	 * @return
+	 */
 	public int getNumCalls()
 	{
 		return this.calls;
 	}
 	
+	/**
+	 * @return
+	 */
 	public int getNumPostCalls()
 	{
 		return this.postCalls;
 	}
 	
+	/**
+	 * @return
+	 */
 	public int getNumGetCalls()
 	{
 		return this.calls - this.postCalls;
 	}
-	
-	
-	
-	
 }
