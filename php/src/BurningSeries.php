@@ -605,7 +605,7 @@ class BurningSeries
 
 		$sucess = $this->call("unwatch/{$id}");
 
-		return $sucess['success'];
+		return isset($sucess['success']) ? $sucess['success'] : false;
 	}
 
 	/**
@@ -667,6 +667,10 @@ class BurningSeries
 			'login[user]' => $name,
 			'login[pass]' => $password
 		));
+
+		if(empty($session)) {
+			return '';
+		}
 
 		$this->setSessionId($session['session']);
 
