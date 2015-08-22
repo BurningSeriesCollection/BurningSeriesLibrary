@@ -147,6 +147,11 @@ class FileCacher extends BurningSeries
 		}
 	}
 
+	/**
+	 * @param string $url
+	 *
+	 * @return string
+	 */
 	private function getFilename($url)
 	{
 		$path = static::$path;
