@@ -25,9 +25,9 @@ class BurningSeries
 	/** @var bool $enableCaching */
 	private $enableCaching = true;
 	/** @var array $cache */
-	private static $cache = array();
+	private $cache = array();
 	/** @var array $dontCache */
-	protected static $dontCache = array(
+	protected $dontCache = array(
 		'watch',
 		'unwatch',
 		'user/series/set',
@@ -961,9 +961,9 @@ class BurningSeries
 	 * @param string $url
 	 * @param mixed $data
 	 */
-	protected static function putCache($url, $data)
+	protected function putCache($url, $data)
 	{
-		static::$cache[$url] = $data;
+		$this->cache[$url] = $data;
 	}
 
 	/**
@@ -973,9 +973,9 @@ class BurningSeries
 	 *
 	 * @return bool
 	 */
-	protected static function hasCache($url)
+	protected function hasCache($url)
 	{
-		return !empty(static::$cache[$url]);
+		return !empty($this->cache[$url]);
 	}
 
 	/**
@@ -985,9 +985,9 @@ class BurningSeries
 	 *
 	 * @return mixed
 	 */
-	protected static function getCache($url)
+	protected function getCache($url)
 	{
-		return static::$cache[$url];
+		return $this->cache[$url];
 	}
 
 	/**
@@ -997,13 +997,13 @@ class BurningSeries
 	 *
 	 * @return bool
 	 */
-	protected static function shouldBeCached($url)
+	protected function shouldBeCached($url)
 	{
-		if (in_array($url, static::$dontCache)) {
+		if (in_array($url, $this->dontCache)) {
 			return false;
 		}
 
-		foreach (static::$dontCache as $notCache) {
+		foreach ($this->dontCache as $notCache) {
 			// Starts with a non caching url? Something with a parameter likely
 			if (strpos($url, $notCache) === 0) {
 				return false;
@@ -1018,12 +1018,12 @@ class BurningSeries
 	 *
 	 * @param string $url
 	 */
-	public static function invalidateCache($url = '')
+	public function invalidateCache($url = '')
 	{
 		if(empty($url)) {
-			static::$cache = array();
+			$this->cache = array();
 		} else {
-			unset(static::$cache[$url]);
+			unset($this->cache[$url]);
 		}
 	}
 
