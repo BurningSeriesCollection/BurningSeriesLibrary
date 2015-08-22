@@ -866,8 +866,9 @@ class BurningSeries
 	/**
 	 * Perform the actual API call
 	 *
-	 * @param string        $link Relative to the API base url
-	 * @param boolean|array $post Either a boolean to specify whether it's a post request or an array with post fields
+	 * @param string        $link    Relative to the API base url
+	 * @param boolean|array $post    Either a boolean to specify whether it's a post request or an array with post fields
+	 * @param boolean       $session Whether or not the session id should be sent as parameter. Default is true. Should only be set if really necessary
 	 *
 	 * @return array
 	 */
